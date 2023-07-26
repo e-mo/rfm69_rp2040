@@ -3,17 +3,6 @@
 #include "pico/malloc.h"
 
 
-struct Rfm69 {
-    spi_inst_t* spi; // Initialized SPI instance
-    uint pin_cs;
-    uint pin_rst;
-    RFM69_OP_MODE op_mode;
-    int8_t pa_level;
-    RFM69_PA_MODE pa_mode;
-	RFM69_RETURN return_status;
-    uint8_t ocp_trim;
-	uint8_t address;
-};
 
 Rfm69 *rfm69_create() {
 	return malloc(sizeof(Rfm69));
@@ -24,47 +13,41 @@ void rfm69_destory(Rfm69 *rfm) {
 }
 
 bool rfm69_init(
-        Rfm69 *rfm,
-        spi_inst_t *spi,
-        uint pin_miso,
-        uint pin_mosi,
-        uint pin_cs,
-        uint pin_sck,
-        uint pin_rst,
-        uint pin_irq_0,
-        uint pin_irq_1) 
+        Rfm69 rfm[static 1],
+		const Rfm69Config config[static 1]
+)
 {
 	bool success = false;
 
+    spi_init(config->spi, 1000*1000); // Defaults to master mode, which we want
 
-    rfm->spi = spi;
-    rfm->pin_cs = pin_cs;
-    rfm->pin_rst = pin_rst;
-    
-    // These are the default values for every version
-    // of the RFM69 I can find.
-    rfm->op_mode = RFM69_OP_MODE_STDBY;
-    rfm->pa_level = 0xFF;
-    rfm->pa_mode = RFM69_PA_MODE_PA0;
-    rfm->ocp_trim = RFM69_OCP_TRIM_DEFAULT;
-	rfm->address = 0; // All nodes default to address 0
+	*rfm = (Rfm69) {
+		.spi = config->spi,
+		.pin_cs = config->pin_cs,
+		.pin_rst = config->pin_rst,
+		.op_mode = RFM69_OP_MODE_STDBY,
+		.pa_level = 0xFF,
+		.pa_mode = RFM69_PA_MODE_PA0,
+		.ocp_trim = RFM69_OCP_TRIM_DEFAULT,
+		.address = 0
+	};
 
-    gpio_set_function(pin_miso, GPIO_FUNC_SPI);
-    gpio_set_function(pin_sck,  GPIO_FUNC_SPI);
-    gpio_set_function(pin_mosi, GPIO_FUNC_SPI);
+    gpio_set_function(config->pin_miso, GPIO_FUNC_SPI);
+    gpio_set_function(config->pin_sck,  GPIO_FUNC_SPI);
+    gpio_set_function(config->pin_mosi, GPIO_FUNC_SPI);
 
     // Chip select is active-low, so we'll initialise it to a driven-high state
-    gpio_init(pin_cs);
-    gpio_set_dir(pin_cs, GPIO_OUT);
-    gpio_put(pin_cs, 1);
+    gpio_init(config->pin_cs);
+    gpio_set_dir(config->pin_cs, GPIO_OUT);
+    gpio_put(config->pin_cs, 1);
 
     // Per documentation we leave RST pin floating for at least
     // 10 ms on startup. No harm in waiting 10ms here to
     // guarantee.
     sleep_ms(10); 
-    gpio_init(pin_rst);
-    gpio_set_dir(pin_rst, GPIO_OUT);
-    gpio_put(pin_rst, 0);
+    gpio_init(config->pin_rst);
+    gpio_set_dir(config->pin_rst, GPIO_OUT);
+    gpio_put(config->pin_rst, 0);
 
     // Try to read version register
     // As long as this returns anything other than 0 or 255, this passes.

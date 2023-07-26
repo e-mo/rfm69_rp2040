@@ -128,8 +128,6 @@
 #define RFM69_FIFO_SIZE             66 // The FIFO size is fixed to 66 bytes 
 #define RFM69_FSTEP                 61
 
-// Incomplete type representing Rfm69 radio module.
-typedef struct Rfm69 Rfm69;
 
 typedef enum _RETURN {
     RFM69_OK                      =  0,
@@ -318,6 +316,30 @@ typedef enum _DAGC_SETTING {
 	RFM69_DAGC_IMPROVED_0 = 0x30
 } RFM69_DAGC_SETTING;
 
+// Incomplete type representing Rfm69 radio module.
+typedef struct _rfm69 {
+    spi_inst_t *spi; // Initialized SPI instance
+    uint pin_cs;
+    uint pin_rst;
+    RFM69_OP_MODE op_mode;
+    int8_t pa_level;
+    RFM69_PA_MODE pa_mode;
+	RFM69_RETURN return_status;
+    uint8_t ocp_trim;
+	uint8_t address;
+} Rfm69;
+
+typedef struct _rfm69_pin_config {
+	spi_inst_t *spi;
+	uint pin_miso;
+	uint pin_mosi;
+	uint pin_cs;
+	uint pin_sck;
+	uint pin_rst;
+	uint pin_irq0;
+	uint pin_irq1;
+} Rfm69Config;
+
 Rfm69 *rfm69_create();
 void rfm69_destroy(Rfm69 *rfm);
 
@@ -330,18 +352,9 @@ void rfm69_destroy(Rfm69 *rfm);
 // module typically stays active for the lifetime of the process, I
 // see no reason to provide an rfm69 specific free function.
 bool rfm69_init(
-    Rfm69 *rfm,
-    spi_inst_t *spi,
-    uint pin_miso,
-    uint pin_mosi,
-    uint pin_cs,
-    uint pin_sck,
-    uint pin_rst,
-    uint pin_irq_0,
-    uint pin_irq_1
+    Rfm69 rfm[static 1],
+	const Rfm69Config config[static 1]
 );
-
-
 
 // Resets the module by setting the reset pin for 100ms
 // and then waiting an additional 5ms after clearing as per the
