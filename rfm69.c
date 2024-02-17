@@ -13,8 +13,8 @@ void rfm69_destory(Rfm69 *rfm) {
 }
 
 bool rfm69_init(
-        Rfm69 rfm[static 1],
-		const Rfm69Config config[static 1]
+        Rfm69 *rfm,
+		const Rfm69Config *config
 )
 {
 	bool success = false;
