@@ -91,10 +91,8 @@ void rfm69_reset(Rfm69 *rfm) {
     sleep_ms(5);
 }
 
-// I actually have no idea why this is necessary, but every
-// single SPI example in the documentation spends three cycles
-// doing nothing before and after the cs pin is set/cleared.
-// Likely to allow time for pins to settle?
+// 3x NOP delay added before and after spi CS pin level change
+// to allow pin to settle.
 static inline void cs_select(uint pin_cs) {
     asm volatile("nop \n nop \n nop");
     gpio_put(pin_cs, 0);  // Active low
@@ -106,7 +104,6 @@ static inline void cs_deselect(uint pin_cs) {
     gpio_put(pin_cs, 1);
     asm volatile("nop \n nop \n nop");
 }
-
 
 bool rfm69_write(
         Rfm69 *rfm, 

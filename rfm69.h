@@ -347,9 +347,6 @@ void rfm69_destroy(Rfm69 *rfm);
 // spi instane (e.g. spi0 pins for spi0 instance).
 //
 // This function assumes spi_inst_t *spi has already been initialized. 
-// This function returns heap allocated memory. Since this kind of
-// module typically stays active for the lifetime of the process, I
-// see no reason to provide an rfm69 specific free function.
 bool rfm69_init(
     Rfm69 *rfm,
 	Rfm69Config *config
