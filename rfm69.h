@@ -128,6 +128,7 @@
 #define RFM69_FIFO_SIZE             66 // The FIFO size is fixed to 66 bytes 
 #define RFM69_FSTEP                 61
 
+
 typedef enum _RETURN {
     RFM69_OK                      =  0,
     RFM69_REGISTER_TEST_FAIL      = -2,
@@ -244,7 +245,7 @@ enum _PA_LEVEL {
     RFM69_PA_LOW_MIN       = -18,
     RFM69_PA_LOW_MAX       =  13,
 
-    RFM69_PA0_ON           = 0x01 << 7,
+    RFM69_PA0_ON           = 0X01 << 7,
     RFM69_PA1_ON           = 0x01 << 6,
     RFM69_PA2_ON           = 0x01 << 5,
     RFM69_PA_PINS_MASK     = 0x07 << 5,
@@ -335,8 +336,6 @@ typedef struct _rfm69_pin_config {
 	uint pin_cs;
 	uint pin_sck;
 	uint pin_rst;
-	uint pin_irq0;
-	uint pin_irq1;
 } Rfm69Config;
 
 Rfm69 *rfm69_create();
@@ -347,9 +346,12 @@ void rfm69_destroy(Rfm69 *rfm);
 // spi instane (e.g. spi0 pins for spi0 instance).
 //
 // This function assumes spi_inst_t *spi has already been initialized. 
+// This function returns heap allocated memory. Since this kind of
+// module typically stays active for the lifetime of the process, I
+// see no reason to provide an rfm69 specific free function.
 bool rfm69_init(
-    Rfm69 *rfm,
-	Rfm69Config *config
+    Rfm69 rfm[static 1],
+	const Rfm69Config config[static 1]
 );
 
 // Resets the module by setting the reset pin for 100ms
@@ -370,8 +372,7 @@ bool rfm69_write(
         Rfm69 *rfm, 
         uint8_t address, 
         const uint8_t *src, 
-        size_t len
-);
+        size_t len);
 
 // For writing to a specific bit field within a register.
 // Only writes one byte of data.
@@ -383,8 +384,7 @@ bool rfm69_write_masked(
         Rfm69 *rfm, 
         uint8_t address, 
         const uint8_t src,
-        const uint8_t mask
-);
+        const uint8_t mask);
 
 // Reads <len> bytes into <dst> from RFM69 registers/FIFO over SPI.
 // SPI instance must be initialized before calling.
@@ -399,8 +399,7 @@ bool rfm69_read(
         Rfm69 *rfm, 
         uint8_t address, 
         uint8_t *dst, 
-        size_t len
-);
+        size_t len);
 
 // For writing to a specific bit field within a register.
 // Only writes one byte of data.
@@ -412,8 +411,7 @@ bool rfm69_read_masked(
         Rfm69 *rfm,
         uint8_t address,
         uint8_t *dst,
-        const uint8_t mask
-);
+        const uint8_t mask);
 
 // Reads state of IRQ flags. Each function corresponds with one
 // of the flag registers.
