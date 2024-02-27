@@ -1,8 +1,6 @@
-#include "rfm69.h"
+#include "rfm69_pico.h"
 #include "stdlib.h"
 #include "pico/malloc.h"
-
-
 
 Rfm69 *rfm69_create() {
 	return malloc(sizeof(Rfm69));

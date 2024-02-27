@@ -1,4 +1,4 @@
-// rfm69hcw.h
+// rfm69_pico.h
 // This library contains register definitions and a set of baseline functions for communicating
 // with the RFM69HCW transceiver module (though it should work with any of the RFM69 modules)
 // specifically for working with the RaspberryPi Pico C/C++ SDK.
