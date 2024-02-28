@@ -317,7 +317,7 @@ typedef enum _DAGC_SETTING {
 } RFM69_DAGC_SETTING;
 
 // Incomplete type representing Rfm69 radio module.
-typedef struct _rfm69 {
+typedef struct _rfm69_context {
     spi_inst_t *spi; // Initialized SPI instance
     uint pin_cs;
     uint pin_rst;
@@ -327,19 +327,19 @@ typedef struct _rfm69 {
 	RFM69_RETURN return_status;
     uint8_t ocp_trim;
 	uint8_t address;
-} Rfm69;
+} rfm69_context_t;
 
-typedef struct _rfm69_pin_config {
+typedef struct _rfm69_config {
 	spi_inst_t *spi;
 	uint pin_miso;
 	uint pin_mosi;
 	uint pin_cs;
 	uint pin_sck;
 	uint pin_rst;
-} Rfm69Config;
+} rfm69_config_t;
 
-Rfm69 *rfm69_create();
-void rfm69_destroy(Rfm69 *rfm);
+rfm69_context_t *rfm69_create();
+void rfm69_destroy(rfm69_context_t *rfm);
 
 // Initializes passed in Rfm69 pointer and sets pins to proper
 // mode for spi communication. Passed pins must match the passed in
@@ -350,14 +350,14 @@ void rfm69_destroy(Rfm69 *rfm);
 // module typically stays active for the lifetime of the process, I
 // see no reason to provide an rfm69 specific free function.
 bool rfm69_init(
-    Rfm69 rfm[static 1],
-	const Rfm69Config config[static 1]
+    rfm69_context_t *rfm,
+	const rfm69_config_t *config
 );
 
 // Resets the module by setting the reset pin for 100ms
 // and then waiting an additional 5ms after clearing as per the
 // RFM69HCW datasheet: https://cdn.sparkfun.com/datasheets/Wireless/General/RFM69HCW-V1.1.pdf
-void rfm69_reset(Rfm69 *rfm);
+void rfm69_reset(rfm69_context_t *rfm);
 
 // Writes <len> bytes from <src> to RFM69 registers/FIFO over SPI.
 // SPI instance must be initialized before calling.
@@ -369,7 +369,7 @@ void rfm69_reset(Rfm69 *rfm);
 // len     - src array length.
 // Returns number of bytes written (not including address byte).
 bool rfm69_write(
-        Rfm69 *rfm, 
+        rfm69_context_t *rfm, 
         uint8_t address, 
         const uint8_t *src, 
         size_t len);
@@ -381,7 +381,7 @@ bool rfm69_write(
 // src     - properly aligned value to be written
 // mask    - mask for clearing bit field
 bool rfm69_write_masked(
-        Rfm69 *rfm, 
+        rfm69_context_t *rfm, 
         uint8_t address, 
         const uint8_t src,
         const uint8_t mask);
@@ -390,13 +390,13 @@ bool rfm69_write_masked(
 // SPI instance must be initialized before calling.
 // If src len > 1, address will be incremented between each byte (burst write).
 //
-// rfm     - initialized Rfm69 *
+// rfm     - initialized rfm69_context_t *
 // address - uint8_t register/FIFO address.
 // dst     - an array of uint8_t to be read into.
 // len     - dst array length.
 // Returns number of bytes written (not including address byte).
 bool rfm69_read(
-        Rfm69 *rfm, 
+        rfm69_context_t *rfm, 
         uint8_t address, 
         uint8_t *dst, 
         size_t len);
@@ -408,7 +408,7 @@ bool rfm69_read(
 // src     - buffer to read field into
 // mask    - mask for isolating bit field
 bool rfm69_read_masked(
-        Rfm69 *rfm,
+        rfm69_context_t *rfm,
         uint8_t address,
         uint8_t *dst,
         const uint8_t mask);
@@ -419,67 +419,67 @@ bool rfm69_read_masked(
 // state   - stores flag state.
 //
 // Returns number of bytes written. 
-bool rfm69_irq1_flag_state(Rfm69 *rfm, RFM69_IRQ1_FLAG flag, bool *state);
-bool rfm69_irq2_flag_state(Rfm69 *rfm, RFM69_IRQ2_FLAG flag, bool *state);
+bool rfm69_irq1_flag_state(rfm69_context_t *rfm, RFM69_IRQ1_FLAG flag, bool *state);
+bool rfm69_irq2_flag_state(rfm69_context_t *rfm, RFM69_IRQ2_FLAG flag, bool *state);
 
 // Sets the opterating frequency of the module.
 // frequency - desired frequency in MHz.
 //
 // Returns number of bytes written. 
-bool rfm69_frequency_set(Rfm69 *rfm, uint32_t frequency);
+bool rfm69_frequency_set(rfm69_context_t *rfm, uint32_t frequency);
 
 // Reads operating frequency from module.
 // Note - might not reflect set freqency until a mode change.
 // frequency - stores frequency in Hz.
 //
 // Returns number of bytes written. 
-bool rfm69_frequency_get(Rfm69 *rfm, uint32_t *frequency);
+bool rfm69_frequency_get(rfm69_context_t *rfm, uint32_t *frequency);
 
 // Sets frequency deviation. 
 // Note: 0.5 <= 2* Fdev/Bitrate <= 10
 // Beta value should stay within this range per specification.
-bool rfm69_fdev_set(Rfm69 *rfm, uint32_t fdev);
+bool rfm69_fdev_set(rfm69_context_t *rfm, uint32_t fdev);
 
-bool rfm69_rxbw_set(Rfm69 *rfm, RFM69_RXBW_MANTISSA mantissa, uint8_t exponent);
+bool rfm69_rxbw_set(rfm69_context_t *rfm, RFM69_RXBW_MANTISSA mantissa, uint8_t exponent);
 
 // Sets modem bitrate.
-bool rfm69_bitrate_set(Rfm69 *rfm,
+bool rfm69_bitrate_set(rfm69_context_t *rfm,
                       RFM69_MODEM_BITRATE bit_rate);
 
 // Reads modem bitrate.
-bool rfm69_bitrate_get(Rfm69 *rfm, uint16_t *bit_rate);
+bool rfm69_bitrate_get(rfm69_context_t *rfm, uint16_t *bit_rate);
 
 // Sets module into a new mode.
 // Blocks until mode is ready.
-bool rfm69_mode_set(Rfm69 *rfm, RFM69_OP_MODE mode);
+bool rfm69_mode_set(rfm69_context_t *rfm, RFM69_OP_MODE mode);
 
 // Gets current mode.
-void rfm69_mode_get(Rfm69 *rfm, uint8_t *mode);
+void rfm69_mode_get(rfm69_context_t *rfm, uint8_t *mode);
 
 // Checks if current mode is ready.
-bool _mode_ready(Rfm69 *rfm, bool *ready);
+bool _mode_ready(rfm69_context_t *rfm, bool *ready);
 
 // Blocks until mode ready IRQ flag is set. 
-bool _mode_wait_until_ready(Rfm69 *rfm);
+bool _mode_wait_until_ready(rfm69_context_t *rfm);
 
 // Sets module into packet or continuous mode. 
-bool rfm69_data_mode_set(Rfm69 *rfm, RFM69_DATA_MODE mode);
+bool rfm69_data_mode_set(rfm69_context_t *rfm, RFM69_DATA_MODE mode);
 // Read data mode register. For testing. 
-bool rfm69_data_mode_get(Rfm69 *rfm, uint8_t *mode);
+bool rfm69_data_mode_get(rfm69_context_t *rfm, uint8_t *mode);
 
 // Sets modulation scheme (FSK or OOK)
-bool rfm69_modulation_type_set(Rfm69 *rfm, RFM69_MODULATION_TYPE type);
-bool rfm69_modulation_type_get(Rfm69 *rfm, uint8_t *type);
+bool rfm69_modulation_type_set(rfm69_context_t *rfm, RFM69_MODULATION_TYPE type);
+bool rfm69_modulation_type_get(rfm69_context_t *rfm, uint8_t *type);
 
-bool rfm69_modulation_shaping_set(Rfm69 *rfm, RFM69_MODULATION_SHAPING shaping);
-bool rfm69_modulation_shaping_get(Rfm69 *rfm, uint8_t *shaping);
+bool rfm69_modulation_shaping_set(rfm69_context_t *rfm, RFM69_MODULATION_SHAPING shaping);
+bool rfm69_modulation_shaping_get(rfm69_context_t *rfm, uint8_t *shaping);
 
 // Read value of last RSSI measurment
-bool rfm69_rssi_measurment_get(Rfm69 *rfm, int16_t *rssi);
+bool rfm69_rssi_measurment_get(rfm69_context_t *rfm, int16_t *rssi);
 
 // Trigger a new RSSI reading
-bool rfm69_rssi_measurment_start(Rfm69 *rfm);
-bool rfm69_rssi_threshold_set(Rfm69 *rfm, uint8_t threshold);
+bool rfm69_rssi_measurment_start(rfm69_context_t *rfm);
+bool rfm69_rssi_threshold_set(rfm69_context_t *rfm, uint8_t threshold);
 
 // Sets power level of module.
 // Low power modules accept power levels -18 -> 13 
@@ -488,29 +488,29 @@ bool rfm69_rssi_threshold_set(Rfm69 *rfm, uint8_t threshold);
 // Define RFM69_HIGH_POWER for high power modules. 
 // Also sets appropriate PA* and power flags based
 // on desired power level. 
-bool rfm69_power_level_set(Rfm69 *rfm, int8_t pa_level);
-void rfm69_power_level_get(Rfm69 *rfm, uint8_t *pa_level);
-bool _power_mode_set(Rfm69 *rfm, RFM69_PA_MODE mode);
+bool rfm69_power_level_set(rfm69_context_t *rfm, int8_t pa_level);
+void rfm69_power_level_get(rfm69_context_t *rfm, uint8_t *pa_level);
+bool _power_mode_set(rfm69_context_t *rfm, RFM69_PA_MODE mode);
 
 // Enable or disable overcurent protection
-bool _ocp_set(Rfm69 *rfm, RFM69_OCP state);
+bool _ocp_set(rfm69_context_t *rfm, RFM69_OCP state);
 // Enable or disable high power settings
-bool _hp_set(Rfm69 *rfm, RFM69_HP_CONFIG enable);
+bool _hp_set(rfm69_context_t *rfm, RFM69_HP_CONFIG enable);
 
-bool rfm69_tx_start_condition_set(Rfm69 *rfm, RFM69_TX_START_CONDITION condition);
+bool rfm69_tx_start_condition_set(rfm69_context_t *rfm, RFM69_TX_START_CONDITION condition);
 
-bool rfm69_payload_length_set(Rfm69 *rfm, uint8_t length);
-bool rfm69_packet_format_set(Rfm69 *rfm, RFM69_PACKET_FORMAT format);
+bool rfm69_payload_length_set(rfm69_context_t *rfm, uint8_t length);
+bool rfm69_packet_format_set(rfm69_context_t *rfm, RFM69_PACKET_FORMAT format);
 
-bool rfm69_address_filter_set(Rfm69 *rfm, RFM69_ADDRESS_FILTER filter);
-bool rfm69_node_address_set(Rfm69 *rfm, uint8_t address);
-void rfm69_node_address_get(Rfm69 *rfm, uint8_t *address);
-bool rfm69_broadcast_address_set(Rfm69 *rfm, uint8_t address);
+bool rfm69_address_filter_set(rfm69_context_t *rfm, RFM69_ADDRESS_FILTER filter);
+bool rfm69_node_address_set(rfm69_context_t *rfm, uint8_t address);
+void rfm69_node_address_get(rfm69_context_t *rfm, uint8_t *address);
+bool rfm69_broadcast_address_set(rfm69_context_t *rfm, uint8_t address);
 
-bool rfm69_sync_value_set(Rfm69 *rfm, uint8_t *value, uint8_t size);
+bool rfm69_sync_value_set(rfm69_context_t *rfm, uint8_t *value, uint8_t size);
 
-bool rfm69_crc_autoclear_set(Rfm69 *rfm, bool set);
+bool rfm69_crc_autoclear_set(rfm69_context_t *rfm, bool set);
 
-bool rfm69_dcfree_set(Rfm69 *rfm, RFM69_DCFREE_SETTING setting);
-bool rfm69_dagc_set(Rfm69 *rfm, RFM69_DAGC_SETTING setting);
+bool rfm69_dcfree_set(rfm69_context_t *rfm, RFM69_DCFREE_SETTING setting);
+bool rfm69_dagc_set(rfm69_context_t *rfm, RFM69_DAGC_SETTING setting);
 #endif // RFM69_DRIVER_H

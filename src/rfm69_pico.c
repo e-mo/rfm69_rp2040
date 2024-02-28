@@ -2,24 +2,24 @@
 #include "stdlib.h"
 #include "pico/malloc.h"
 
-Rfm69 *rfm69_create() {
-	return malloc(sizeof(Rfm69));
+rfm69_context_t *rfm69_create() {
+	return malloc(sizeof(rfm69_context_t));
 }
 
-void rfm69_destory(Rfm69 *rfm) {
+void rfm69_destory(rfm69_context_t *rfm) {
 	free(rfm);
 }
 
 bool rfm69_init(
-        Rfm69 *rfm,
-		const Rfm69Config *config
+        rfm69_context_t *rfm,
+		const rfm69_config_t *config
 )
 {
 	bool success = false;
 
     spi_init(config->spi, 1000*1000); // Defaults to master mode, which we want
 
-	*rfm = (Rfm69) {
+	*rfm = (rfm69_context_t) {
 		.spi = config->spi,
 		.pin_cs = config->pin_cs,
 		.pin_rst = config->pin_rst,
@@ -82,7 +82,7 @@ RETURN:
 }
 
 // Have you tried turning it off and on again?
-void rfm69_reset(Rfm69 *rfm) {
+void rfm69_reset(rfm69_context_t *rfm) {
     gpio_put(rfm->pin_rst, 1);
     sleep_us(100);
     gpio_put(rfm->pin_rst, 0);
@@ -104,7 +104,7 @@ static inline void cs_deselect(uint pin_cs) {
 }
 
 bool rfm69_write(
-        Rfm69 *rfm, 
+        rfm69_context_t *rfm, 
         uint8_t address, 
         const uint8_t *src,
         size_t len)
@@ -127,7 +127,7 @@ bool rfm69_write(
 }
 
 bool rfm69_write_masked(
-        Rfm69 *rfm, 
+        rfm69_context_t *rfm, 
         uint8_t address, 
         const uint8_t src,
         const uint8_t mask)
@@ -142,7 +142,7 @@ bool rfm69_write_masked(
 }
 
 bool rfm69_read(
-        Rfm69 *rfm, 
+        rfm69_context_t *rfm, 
         uint8_t address, 
         uint8_t *dst,
         size_t len)
@@ -166,7 +166,7 @@ bool rfm69_read(
 }
 
 bool rfm69_read_masked(
-        Rfm69 *rfm,
+        rfm69_context_t *rfm,
         uint8_t address,
         uint8_t *dst,
         const uint8_t mask)
@@ -179,7 +179,7 @@ bool rfm69_read_masked(
 }
 
 
-bool rfm69_irq1_flag_state(Rfm69 *rfm, RFM69_IRQ1_FLAG flag, bool *state) {
+bool rfm69_irq1_flag_state(rfm69_context_t *rfm, RFM69_IRQ1_FLAG flag, bool *state) {
     uint8_t reg;
     if (!rfm69_read_masked(rfm, RFM69_REG_IRQ_FLAGS_1, &reg, flag))
 		return false;
@@ -190,7 +190,7 @@ bool rfm69_irq1_flag_state(Rfm69 *rfm, RFM69_IRQ1_FLAG flag, bool *state) {
     return true;
 }
 
-bool rfm69_irq2_flag_state(Rfm69 *rfm, RFM69_IRQ2_FLAG flag, bool *state) {
+bool rfm69_irq2_flag_state(rfm69_context_t *rfm, RFM69_IRQ2_FLAG flag, bool *state) {
     uint8_t reg;
     if (!rfm69_read_masked(rfm, RFM69_REG_IRQ_FLAGS_2, &reg, flag))
 		return false;
@@ -201,7 +201,7 @@ bool rfm69_irq2_flag_state(Rfm69 *rfm, RFM69_IRQ2_FLAG flag, bool *state) {
     return true;
 }
 
-bool rfm69_frequency_set(Rfm69 *rfm, uint32_t frequency) {
+bool rfm69_frequency_set(rfm69_context_t *rfm, uint32_t frequency) {
     // Frf = Fstep * Frf(23,0) frequency *= 1000000; // MHz to Hz
     frequency *= 1000000;
     frequency = (frequency / RFM69_FSTEP) + 0.5; // Gives needed register value
@@ -216,7 +216,7 @@ bool rfm69_frequency_set(Rfm69 *rfm, uint32_t frequency) {
     return rfm69_write(rfm, RFM69_REG_FRF_MSB, buf, 3);
 }
 
-bool rfm69_frequency_get(Rfm69 *rfm, uint32_t *frequency) {
+bool rfm69_frequency_get(rfm69_context_t *rfm, uint32_t *frequency) {
     uint8_t buf[3] = {0};
     if (!rfm69_read(rfm, RFM69_REG_FRF_MSB, buf, 3)) return false;
 
@@ -228,7 +228,7 @@ bool rfm69_frequency_get(Rfm69 *rfm, uint32_t *frequency) {
     return true;
 }
 
-bool rfm69_fdev_set(Rfm69 *rfm, uint32_t fdev) {
+bool rfm69_fdev_set(rfm69_context_t *rfm, uint32_t fdev) {
     fdev = (fdev / RFM69_FSTEP) + 0.5;
 
     uint8_t buf[2] = {
@@ -239,7 +239,7 @@ bool rfm69_fdev_set(Rfm69 *rfm, uint32_t fdev) {
     return rfm69_write(rfm, RFM69_REG_FDEV_MSB, buf, 2);
 }
 
-bool rfm69_rxbw_set(Rfm69 *rfm, RFM69_RXBW_MANTISSA mantissa, uint8_t exponent) {
+bool rfm69_rxbw_set(rfm69_context_t *rfm, RFM69_RXBW_MANTISSA mantissa, uint8_t exponent) {
     // Mask all inputs to prevent invalid input
     exponent &= RFM69_RXBW_EXPONENT_MASK;
     mantissa &= RFM69_RXBW_MANTISSA_MASK;
@@ -254,7 +254,7 @@ bool rfm69_rxbw_set(Rfm69 *rfm, RFM69_RXBW_MANTISSA mantissa, uint8_t exponent) 
     );
 }
 
-bool rfm69_bitrate_set(Rfm69 *rfm, uint16_t bit_rate) {
+bool rfm69_bitrate_set(rfm69_context_t *rfm, uint16_t bit_rate) {
     uint8_t bytes[2] = {
         (bit_rate & 0xFF00) >> 8,
         bit_rate & 0xFF
@@ -263,7 +263,7 @@ bool rfm69_bitrate_set(Rfm69 *rfm, uint16_t bit_rate) {
     return rfm69_write(rfm, RFM69_REG_BITRATE_MSB, bytes, 2);
 }
 
-bool rfm69_bitrate_get(Rfm69 *rfm, uint16_t *bit_rate) {
+bool rfm69_bitrate_get(rfm69_context_t *rfm, uint16_t *bit_rate) {
     uint8_t buf[2] = {0}; 
     if (!rfm69_read(rfm, RFM69_REG_BITRATE_MSB, buf, 2)) return false;
 
@@ -273,7 +273,7 @@ bool rfm69_bitrate_get(Rfm69 *rfm, uint16_t *bit_rate) {
     return true;
 }
 
-bool rfm69_mode_set(Rfm69 *rfm, RFM69_OP_MODE mode) {
+bool rfm69_mode_set(rfm69_context_t *rfm, RFM69_OP_MODE mode) {
 	bool success = false;
 
 	// Just return true/OK if we are already in requested mode
@@ -302,13 +302,13 @@ RETURN:
     return success;
 }
 
-void rfm69_mode_get(Rfm69 *rfm, uint8_t *mode) { *mode = rfm->op_mode; }
+void rfm69_mode_get(rfm69_context_t *rfm, uint8_t *mode) { *mode = rfm->op_mode; }
 
-bool _mode_ready(Rfm69 *rfm, bool *ready) {
+bool _mode_ready(rfm69_context_t *rfm, bool *ready) {
     return rfm69_irq1_flag_state(rfm, RFM69_IRQ1_FLAG_MODE_READY, ready);
 }
 
-bool _mode_wait_until_ready(Rfm69 *rfm) {
+bool _mode_wait_until_ready(rfm69_context_t *rfm) {
     bool ready = false;
     while (!ready) {
         // Return immediately if there is an spi error
@@ -318,7 +318,7 @@ bool _mode_wait_until_ready(Rfm69 *rfm) {
     return true;
 }
 
-bool rfm69_data_mode_set(Rfm69 *rfm, RFM69_DATA_MODE mode) {
+bool rfm69_data_mode_set(rfm69_context_t *rfm, RFM69_DATA_MODE mode) {
     return rfm69_write_masked(
             rfm, 
             RFM69_REG_DATA_MODUL,
@@ -327,7 +327,7 @@ bool rfm69_data_mode_set(Rfm69 *rfm, RFM69_DATA_MODE mode) {
     );
 }
 
-bool rfm69_data_mode_get(Rfm69 *rfm, uint8_t *mode) {
+bool rfm69_data_mode_get(rfm69_context_t *rfm, uint8_t *mode) {
     return rfm69_read_masked(
             rfm,
             RFM69_REG_DATA_MODUL,
@@ -336,7 +336,7 @@ bool rfm69_data_mode_get(Rfm69 *rfm, uint8_t *mode) {
     );
 }
 
-bool rfm69_modulation_type_set(Rfm69 *rfm, RFM69_MODULATION_TYPE type) {
+bool rfm69_modulation_type_set(rfm69_context_t *rfm, RFM69_MODULATION_TYPE type) {
     return rfm69_write_masked(
             rfm,
             RFM69_REG_DATA_MODUL,
@@ -345,7 +345,7 @@ bool rfm69_modulation_type_set(Rfm69 *rfm, RFM69_MODULATION_TYPE type) {
     );
 }
 
-bool rfm69_modulation_type_get(Rfm69 *rfm, uint8_t *type) {
+bool rfm69_modulation_type_get(rfm69_context_t *rfm, uint8_t *type) {
     return rfm69_read_masked(
             rfm,
             RFM69_REG_DATA_MODUL,
@@ -354,7 +354,7 @@ bool rfm69_modulation_type_get(Rfm69 *rfm, uint8_t *type) {
     );
 }
 
-bool rfm69_modulation_shaping_set(Rfm69 *rfm, RFM69_MODULATION_SHAPING shaping) {
+bool rfm69_modulation_shaping_set(rfm69_context_t *rfm, RFM69_MODULATION_SHAPING shaping) {
     return rfm69_write_masked(
             rfm,
             RFM69_REG_DATA_MODUL,
@@ -363,7 +363,7 @@ bool rfm69_modulation_shaping_set(Rfm69 *rfm, RFM69_MODULATION_SHAPING shaping) 
     );
 }
 
-bool rfm69_modulation_shaping_get(Rfm69 *rfm, uint8_t *shaping) {
+bool rfm69_modulation_shaping_get(rfm69_context_t *rfm, uint8_t *shaping) {
     return rfm69_read_masked(
             rfm,
             RFM69_REG_DATA_MODUL,
@@ -373,7 +373,7 @@ bool rfm69_modulation_shaping_get(Rfm69 *rfm, uint8_t *shaping) {
 }
 
 //reads rssi - see p.68 of rfm69 datasheet
-bool rfm69_rssi_measurment_get(Rfm69 *rfm, int16_t *rssi) {
+bool rfm69_rssi_measurment_get(rfm69_context_t *rfm, int16_t *rssi) {
 	uint8_t reg;
 
 	if (!rfm69_read(rfm, RFM69_REG_RSSI_CONFIG, &reg, 1)) return false;
@@ -393,7 +393,7 @@ bool rfm69_rssi_measurment_get(Rfm69 *rfm, int16_t *rssi) {
 
 //triggers the rfm69 to check rssi
 //probably best to run this function before calling rfm69_rssi_get
-bool rfm69_rssi_measurment_start(Rfm69 *rfm) {
+bool rfm69_rssi_measurment_start(rfm69_context_t *rfm) {
 	uint8_t reg;
 
 	if (!rfm69_read(rfm, RFM69_REG_RSSI_CONFIG, &reg, 1)) return false;
@@ -403,7 +403,7 @@ bool rfm69_rssi_measurment_start(Rfm69 *rfm) {
 	return rfm69_write(rfm, RFM69_REG_RSSI_CONFIG, &reg, 1);
 }
 
-bool rfm69_rssi_threshold_set(Rfm69 *rfm, uint8_t threshold) {
+bool rfm69_rssi_threshold_set(rfm69_context_t *rfm, uint8_t threshold) {
     return rfm69_write(
             rfm,
             RFM69_REG_RSSI_THRESH,
@@ -412,7 +412,7 @@ bool rfm69_rssi_threshold_set(Rfm69 *rfm, uint8_t threshold) {
     );
 }
 
-bool rfm69_power_level_set(Rfm69 *rfm, int8_t pa_level) {
+bool rfm69_power_level_set(rfm69_context_t *rfm, int8_t pa_level) {
 	bool success = false;
 
     if (rfm->pa_level == pa_level) {
@@ -483,11 +483,11 @@ RETURN:
     return false;
 }
 
-void rfm69_power_level_get(Rfm69 *rfm, uint8_t *pa_level) {
+void rfm69_power_level_get(rfm69_context_t *rfm, uint8_t *pa_level) {
     *pa_level = rfm->pa_level;
 };
 
-bool _power_mode_set(Rfm69 *rfm, RFM69_PA_MODE pa_mode) {
+bool _power_mode_set(rfm69_context_t *rfm, RFM69_PA_MODE pa_mode) {
     // Skip if we are already in this mode
     if (rfm->pa_mode == pa_mode) {
 		rfm->return_status = RFM69_OK;
@@ -523,7 +523,7 @@ bool _power_mode_set(Rfm69 *rfm, RFM69_PA_MODE pa_mode) {
     return success;
 }
 
-bool _ocp_set(Rfm69 *rfm, RFM69_OCP state) {
+bool _ocp_set(rfm69_context_t *rfm, RFM69_OCP state) {
     return rfm69_write_masked(
             rfm,
             RFM69_REG_OCP,
@@ -532,7 +532,7 @@ bool _ocp_set(Rfm69 *rfm, RFM69_OCP state) {
     );
 }
 
-bool _hp_set(Rfm69 *rfm, RFM69_HP_CONFIG config) {
+bool _hp_set(rfm69_context_t *rfm, RFM69_HP_CONFIG config) {
     RFM69_HP_CONFIG buf[2];
     RFM69_OCP ocp;
     RFM69_OCP_TRIM ocp_trim;
@@ -567,7 +567,7 @@ bool _hp_set(Rfm69 *rfm, RFM69_HP_CONFIG config) {
     return true;
 }
 
-bool rfm69_tx_start_condition_set(Rfm69 *rfm, RFM69_TX_START_CONDITION condition) {
+bool rfm69_tx_start_condition_set(rfm69_context_t *rfm, RFM69_TX_START_CONDITION condition) {
     return rfm69_write_masked(
             rfm,
             RFM69_REG_FIFO_THRESH,
@@ -576,7 +576,7 @@ bool rfm69_tx_start_condition_set(Rfm69 *rfm, RFM69_TX_START_CONDITION condition
     );
 }
 
-bool rfm69_payload_length_set(Rfm69 *rfm, uint8_t length) {
+bool rfm69_payload_length_set(rfm69_context_t *rfm, uint8_t length) {
     return rfm69_write(
             rfm,
             RFM69_REG_PAYLOAD_LENGTH,
@@ -585,7 +585,7 @@ bool rfm69_payload_length_set(Rfm69 *rfm, uint8_t length) {
     );
 }
 
-bool rfm69_packet_format_set(Rfm69 *rfm, RFM69_PACKET_FORMAT format) {
+bool rfm69_packet_format_set(rfm69_context_t *rfm, RFM69_PACKET_FORMAT format) {
 	return rfm69_write_masked(
 			rfm,
 			RFM69_REG_PACKET_CONFIG_1,
@@ -594,7 +594,7 @@ bool rfm69_packet_format_set(Rfm69 *rfm, RFM69_PACKET_FORMAT format) {
 	);
 }
 
-bool rfm69_address_filter_set(Rfm69 *rfm, RFM69_ADDRESS_FILTER filter) {
+bool rfm69_address_filter_set(rfm69_context_t *rfm, RFM69_ADDRESS_FILTER filter) {
     return rfm69_write_masked(
             rfm,
             RFM69_REG_PACKET_CONFIG_1,
@@ -603,7 +603,7 @@ bool rfm69_address_filter_set(Rfm69 *rfm, RFM69_ADDRESS_FILTER filter) {
     );
 }
 
-bool rfm69_node_address_set(Rfm69 *rfm, uint8_t address) {
+bool rfm69_node_address_set(rfm69_context_t *rfm, uint8_t address) {
     if (!rfm69_write( rfm, RFM69_REG_NODE_ADRS, &address, 1))
 		return false;
 
@@ -611,11 +611,11 @@ bool rfm69_node_address_set(Rfm69 *rfm, uint8_t address) {
 	return true;
 }
 
-void rfm69_node_address_get(Rfm69 *rfm, uint8_t *address) {
+void rfm69_node_address_get(rfm69_context_t *rfm, uint8_t *address) {
     *address = rfm->address;
 }
 
-bool rfm69_broadcast_address_set(Rfm69 *rfm, uint8_t address) {
+bool rfm69_broadcast_address_set(rfm69_context_t *rfm, uint8_t address) {
     return rfm69_write(
             rfm,
             RFM69_REG_BROADCAST_ADRS,
@@ -624,7 +624,7 @@ bool rfm69_broadcast_address_set(Rfm69 *rfm, uint8_t address) {
     );
 }
 
-bool rfm69_sync_value_set(Rfm69 *rfm, uint8_t *value, uint8_t size) {
+bool rfm69_sync_value_set(rfm69_context_t *rfm, uint8_t *value, uint8_t size) {
     if (!rfm69_write(rfm, RFM69_REG_SYNC_VALUE_1, value, size))
 		return false;
 
@@ -632,7 +632,7 @@ bool rfm69_sync_value_set(Rfm69 *rfm, uint8_t *value, uint8_t size) {
 	return rfm69_write_masked(rfm, RFM69_REG_SYNC_CONFIG, size, _SYNC_SIZE_MASK);
 }
 
-bool rfm69_crc_autoclear_set(Rfm69 *rfm, bool set) {
+bool rfm69_crc_autoclear_set(rfm69_context_t *rfm, bool set) {
     return rfm69_write_masked(
             rfm,
             RFM69_REG_PACKET_CONFIG_1,
@@ -641,7 +641,7 @@ bool rfm69_crc_autoclear_set(Rfm69 *rfm, bool set) {
     );
 }
 
-bool rfm69_dcfree_set(Rfm69 *rfm, RFM69_DCFREE_SETTING setting) {
+bool rfm69_dcfree_set(rfm69_context_t *rfm, RFM69_DCFREE_SETTING setting) {
     return rfm69_write_masked(
             rfm,
             RFM69_REG_PACKET_CONFIG_1,
@@ -650,7 +650,7 @@ bool rfm69_dcfree_set(Rfm69 *rfm, RFM69_DCFREE_SETTING setting) {
     );
 }
 
-bool rfm69_dagc_set(Rfm69 *rfm, RFM69_DAGC_SETTING setting) {
+bool rfm69_dagc_set(rfm69_context_t *rfm, RFM69_DAGC_SETTING setting) {
     return rfm69_write(
             rfm,
             RFM69_REG_TEST_DAGC,
