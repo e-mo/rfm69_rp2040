@@ -11,6 +11,7 @@ set(PICO_SDK_PATH "~/pico/pico-sdk")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
+include(pico_extras_import.cmake)
 
 if (PICO_SDK_VERSION_STRING VERSION_LESS "1.4.0")
   message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.4.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
@@ -21,10 +22,11 @@ project(rfm69_pico_lib C CXX ASM)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-
 add_library(rfm69_pico STATIC
-	${CMAKE_CURRENT_SOURCE_DIR}/src/rfm69_pico.c
-	${CMAKE_CURRENT_SOURCE_DIR}/src/rfm69_pico.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/rfm69_pico_interface.c
+	${CMAKE_CURRENT_SOURCE_DIR}/src/rfm69_pico_interface.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/rfm69_pico_rudp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/src/rfm69_pico_rudp.h
 )
 
 target_include_directories(rfm69_pico INTERFACE
@@ -33,4 +35,5 @@ target_include_directories(rfm69_pico INTERFACE
 
 target_link_libraries(rfm69_pico pico_stdlib
 	hardware_spi
+	pico_rand
 )

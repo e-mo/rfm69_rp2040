@@ -1,4 +1,4 @@
-#include "rfm69_pico.h"
+#include "rfm69_pico_interface.h"
 #include "stdlib.h"
 #include "pico/malloc.h"
 
