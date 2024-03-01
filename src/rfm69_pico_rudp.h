@@ -39,7 +39,7 @@ typedef enum RUDP_BAUD {
 	RUDP_BAUD_NUM
 } rudp_baud_t;
 
-typedef struct _trx_report_t {
+typedef struct _trx_report {
     uint payload_size;
 	uint bytes_sent;
 	uint bytes_received; 
@@ -55,7 +55,7 @@ typedef struct _trx_report_t {
 	RUDP_RETURN return_status;
 	uint8_t tx_address;
 	uint8_t rx_address;
-} TrxReport;
+} trx_report_t;
 
 enum HEADER {
     HEADER_PACKET_SIZE,
@@ -100,6 +100,9 @@ bool rfm69_rudp_tx_timeout_set(rudp_context_t *context, uint timeout);
 int rfm69_rudp_tx_timeout_get(const rudp_context_t *context);
 bool rfm69_rudp_rx_timeout_set(rudp_context_t *context, uint timeout);
 int rfm69_rudp_rx_timeout_get(const rudp_context_t *context);
+
+// Returns a copy of last TRX report struct
+trx_report_t * rfm69_rudp_report_get(rudp_context_t *context);
 
 // Attempts to send payload to provided radio address
 bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address);

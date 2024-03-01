@@ -28,7 +28,7 @@
 
 struct rudp_context_ {
 	rfm69_context_t *rfm;
-	TrxReport *report;
+	trx_report_t *report;
 	uint8_t *buffer;
 	uint buffer_size;
 	uint8_t *payload;
@@ -66,9 +66,10 @@ bool rfm69_rudp_init(rudp_context_t *context, rfm69_context_t *rfm) {
 	if (rfm == NULL) return false;
 
 	context->rfm = rfm;
+	context->report = NULL;
 
-	context->report = calloc(1, sizeof *context->report);
-	if (context->report = NULL) return false;
+	context->report = calloc(1, sizeof (trx_report_t));
+	if (context->report == NULL) return false;
 
 	// Default settings for rudp
 	context->buffer = NULL;
@@ -158,7 +159,7 @@ bool rfm69_rudp_payload_set(
 	return true;
 }
 
-TrxReport * rfm69_rudp_report_get(rudp_context_t *context) {
+trx_report_t * rfm69_rudp_report_get(rudp_context_t *context) {
 	if (context == NULL) return NULL;
 	return context->report;
 }
@@ -167,7 +168,7 @@ bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address) {
 
 	// Set locals with context
 	rfm69_context_t *rfm = context->rfm;
-	TrxReport *report = context->report;
+	trx_report_t *report = context->report;
 	uint8_t *payload = context->payload;
 	uint payload_size = context->payload_size;
 	uint timeout = context->tx_timeout;
@@ -221,6 +222,7 @@ bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address) {
     bool ack_received = false;
     for (uint retry = 0; retry <= retries; retry++) {
         
+		printf("TX trying...\n");
         rfm69_mode_set(rfm, RFM69_OP_MODE_STDBY);
 
         // Write header to fifo
@@ -392,7 +394,7 @@ CLEANUP:
 bool rfm69_rudp_receive(rudp_context_t *context) {
 	// Local variables to avoid refactoring
 	rfm69_context_t *rfm = context->rfm; 
-	TrxReport *report = context->report;
+	trx_report_t *report = context->report;
 	uint8_t *payload = context->buffer;
     uint payload_buffer_size = context->buffer_size;
 	uint per_packet_delay = BAUD_SETTINGS_LOOKUP[context->baud].pp_delay;
@@ -437,6 +439,8 @@ RESTART_RBT_LOOP: // This is to return to the RBT loop in case of a false
             sleep_us(1);
             continue;
         }
+		
+		printf("here\n");
 
         rfm69_mode_set(rfm, RFM69_OP_MODE_STDBY);
 
