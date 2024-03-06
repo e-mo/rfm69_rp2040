@@ -46,6 +46,8 @@ typedef struct _trx_report {
 	uint data_packets_sent;
 	uint data_packets_received;
 	uint data_packets_retransmitted;
+	uint rbt_sent;
+	uint rbt_received;
 	uint acks_sent;
 	uint acks_received;
 	uint racks_sent;
@@ -101,8 +103,25 @@ int rfm69_rudp_tx_timeout_get(const rudp_context_t *context);
 bool rfm69_rudp_rx_timeout_set(rudp_context_t *context, uint timeout);
 int rfm69_rudp_rx_timeout_get(const rudp_context_t *context);
 
+bool rfm69_rudp_rx_buffer_set(
+		rudp_context_t *context, 
+		void *buffer,
+		uint buffer_size
+); 
+
+void * rfm69_rudp_rx_buffer_get(rudp_context_t *context, uint *size);
+
+bool rfm69_rudp_payload_set(
+		rudp_context_t *context,
+		void *payload,
+		uint payload_size
+);
+
+bool rfm69_rudp_address_set(rudp_context_t *context, uint8_t address);
+
 // Returns a copy of last TRX report struct
 trx_report_t * rfm69_rudp_report_get(rudp_context_t *context);
+void rfm69_rudp_report_print(trx_report_t *report);
 
 // Attempts to send payload to provided radio address
 bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address);
@@ -110,6 +129,7 @@ bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address);
 static inline void _rudp_block_until_packet_sent(rfm69_context_t *rfm);
 
 bool rfm69_rudp_receive(rudp_context_t *context);
+
 
 // Internal ack rx logic
 static RUDP_RETURN _rudp_rx_ack(

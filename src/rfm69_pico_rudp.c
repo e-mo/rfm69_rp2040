@@ -48,10 +48,13 @@ typedef struct baud_settings {
 	uint fdev;
 	RFM69_MODEM_BITRATE bitrate;	
 	uint pp_delay; // per-packet delay us
+	RFM69_RXBW_MANTISSA rxbw_mantissa;
+	uint rxbw_exp;
 } baud_settings_t;
 
 const baud_settings_t BAUD_SETTINGS_LOOKUP[RUDP_BAUD_NUM] = {
-	{70000, RFM69_MODEM_BITRATE_57_6, 12000} // RUDP_BAUD_57_6, ~2 beta, 12000 us PPD
+	// RUDP_BAUD_57_6, ~2 beta, 12000 us PPD
+	{70000, RFM69_MODEM_BITRATE_57_6, 12000, RFM69_RXBW_MANTISSA_20, 2} 
 };
 
 
@@ -84,25 +87,26 @@ bool rfm69_rudp_init(rudp_context_t *context, rfm69_context_t *rfm) {
 	
 	if (!rfm69_rudp_baud_set(context, RUDP_BAUD_57_6)) return false;
 
-	// Some Rfm69 sane default settings
-	// Address and power level should be set directly through radio
-	// TODO: Add power level negotiation to protocol for first
+	// some rfm69 sane default settings
+	// address and power level should be set directly through radio
+	// todo: add power level negotiation to protocol for first
 	// communication with external radio
-    rfm69_rxbw_set(rfm, RFM69_RXBW_MANTISSA_20, 2);
     rfm69_dcfree_set(rfm, RFM69_DCFREE_WHITENING);
-	rfm69_mode_set(rfm, RFM69_OP_MODE_SLEEP);
 	rfm69_packet_format_set(rfm, RFM69_PACKET_VARIABLE);
+	rfm69_payload_length_set(rfm, PAYLOAD_MAX);
 
+	rfm69_mode_set(rfm, RFM69_OP_MODE_SLEEP);
 	return true;
 }
 
 bool rfm69_rudp_baud_set(rudp_context_t *context, rudp_baud_t baud) {
 	if (baud < 0 || baud >= RUDP_BAUD_NUM) return false;
 
-	baud_settings_t bs = BAUD_SETTINGS_LOOKUP[context->baud];
+	baud_settings_t bs = BAUD_SETTINGS_LOOKUP[baud];
 
     if (!rfm69_fdev_set(context->rfm, bs.fdev)) return false;
     if (!rfm69_bitrate_set(context->rfm, bs.bitrate)) return false;
+    if (!rfm69_rxbw_set(context->rfm, bs.rxbw_mantissa, bs.rxbw_exp));
 
 	context->baud = baud;
 
@@ -145,6 +149,13 @@ bool rfm69_rudp_rx_buffer_set(
 	return true;
 }
 
+void * rfm69_rudp_rx_buffer_get(rudp_context_t *context, uint *size) {
+	if (context == NULL) return NULL;
+
+	*size = context->buffer_size;
+	return context->buffer;
+}
+
 bool rfm69_rudp_payload_set(
 		rudp_context_t *context,
 		void *payload,
@@ -159,9 +170,55 @@ bool rfm69_rudp_payload_set(
 	return true;
 }
 
+bool rfm69_rudp_address_set(rudp_context_t *context, uint8_t address) {
+	return rfm69_node_address_set(context->rfm, address);
+}
+
+
 trx_report_t * rfm69_rudp_report_get(rudp_context_t *context) {
 	if (context == NULL) return NULL;
 	return context->report;
+}
+
+void rfm69_rudp_report_print(trx_report_t *report) {
+	if (report == NULL) return;
+
+	printf("payload_size: %u\n", report->payload_size);
+	printf("bytes_sent: %u\n", report->bytes_sent);
+	printf("bytes_received: %u\n", report->bytes_received);
+	printf("data_packets_sent: %u\n", report->data_packets_sent);
+	printf("data_packets_retransmitted: %u\n", report->data_packets_retransmitted);
+	printf("rbt_sent: %u\n", report->rbt_sent);
+	printf("rbt_received: %u\n", report->rbt_received);
+	printf("acks_sent: %u\n", report->acks_sent);
+	printf("acks_received: %u\n", report->acks_received);
+	printf("racks_sent: %u\n", report->racks_sent);
+	printf("racks_received: %u\n", report->racks_received);
+	printf("rack_requests_sent: %u\n", report->rack_requests_sent);
+	printf("rack_requests_received: %u\n", report->rack_requests_received);
+	printf("return_status: ");
+	switch (report->return_status) {
+		case RUDP_OK:
+			printf("RUDP_OK\n");
+			break;
+		case RUDP_OK_UNCONFIRMED:
+			printf("RUDP_OK_UNCONFIRMED\n");
+			break;
+		case RUDP_TIMEOUT:
+			printf("RUDP_TIMEOUT\n");
+			break;
+		case RUDP_BUFFER_OVERFLOW:
+			printf("RUDP_BUFFER_OVERFLOW\n");
+			break;
+		case RUDP_PAYLOAD_OVERFLOW:
+			printf("RUDP_BUFFER_OVERFLOW\n");
+			break;
+		default:
+			printf("UNKNOWN\n");
+	}
+	printf("tx_address: %02X\n", report->tx_address); 
+	printf("rx_address: %02X\n", report->rx_address); 
+
 }
 
 bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address) {
@@ -222,7 +279,6 @@ bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address) {
     bool ack_received = false;
     for (uint retry = 0; retry <= retries; retry++) {
         
-		printf("TX trying...\n");
         rfm69_mode_set(rfm, RFM69_OP_MODE_STDBY);
 
         // Write header to fifo
@@ -244,6 +300,8 @@ bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address) {
         rfm69_mode_set(rfm, RFM69_OP_MODE_TX);
         _rudp_block_until_packet_sent(rfm);
 
+		report->rbt_sent++;
+
         // I employ "backoff" where the timout increases with each retry plus "jitter"
         // This allows you to have a quick retry followed by successively slower retries
         // with some random deviation to avoid a certain class of timing bugs
@@ -253,6 +311,7 @@ bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address) {
 
         // Ack received
         ack_received = true;
+		report->acks_received++;
         break;
     }
     if (!ack_received) goto CLEANUP; // Do not pass go
@@ -297,6 +356,7 @@ bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address) {
         rfm69_mode_set(rfm, RFM69_OP_MODE_TX);
         _rudp_block_until_packet_sent(rfm);
 
+		report->bytes_sent += size;
         report->data_packets_sent++;
     }
 
@@ -440,8 +500,6 @@ RESTART_RBT_LOOP: // This is to return to the RBT loop in case of a false
             continue;
         }
 		
-		printf("here\n");
-
         rfm69_mode_set(rfm, RFM69_OP_MODE_STDBY);
 
         rfm69_read(
@@ -463,6 +521,8 @@ RESTART_RBT_LOOP: // This is to return to the RBT loop in case of a false
             );
             continue;
         } 
+
+		report->rbt_received++;
 
         // Read expected payload size
         uint8_t size_bytes[sizeof(payload_size)];
