@@ -1,4 +1,4 @@
-// rfm69_pico_interface.h
+// rfm69_rp2040_interface.h
 // Interface for controlling the RFM69 with a RPi Pico
 
 //	Copyright (C) 2024 
@@ -18,15 +18,15 @@
 //	You should have received a copy of the GNU General Public License
 //	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef RFM69_PICO_INTERFACE_H
-#define RFM69_PICO_INTERFACE_H
+#ifndef RFM69_RP2040_INTERFACE_H
+#define RFM69_RP2040_INTERFACE_H
 
 #include <stdio.h> // for testing. remove later
 
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 
-#include "rfm69_pico_definitions.h"
+#include "rfm69_rp2040_definitions.h"
 
 rfm69_context_t *rfm69_create();
 void rfm69_destroy(rfm69_context_t *rfm);
@@ -204,4 +204,4 @@ bool rfm69_crc_autoclear_set(rfm69_context_t *rfm, bool set);
 bool rfm69_dcfree_set(rfm69_context_t *rfm, RFM69_DCFREE_SETTING setting);
 bool rfm69_dagc_set(rfm69_context_t *rfm, RFM69_DAGC_SETTING setting);
 
-#endif // RFM69_PICO_INTERFACE_H
+#endif // RFM69_RP2040_INTERFACE_H

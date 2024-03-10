@@ -21,7 +21,7 @@
 #ifndef RFM69_PICO_RUDP_H
 #define RFM69_PICO_RUDP_H
 
-#include "rfm69_pico_interface.h"
+#include "rfm69_rp2040_interface.h"
 
 typedef struct rudp_context_ rudp_context_t;
 

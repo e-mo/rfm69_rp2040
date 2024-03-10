@@ -1,4 +1,4 @@
-// rfm69_pico_interface.c
+// rfm69_rp2040_interface.c
 // Interface implementation for controlling the RFM69 with a RPi Pico
 
 //	Copyright (C) 2024 
@@ -18,7 +18,7 @@
 //	You should have received a copy of the GNU General Public License
 //	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "rfm69_pico_interface.h"
+#include "rfm69_rp2040_interface.h"
 #include "stdlib.h"
 #include "pico/malloc.h"
 

@@ -19,7 +19,7 @@
 //	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
-#include "rfm69_pico_rudp.h"
+#include "rfm69_rp2040_rudp.h"
 #include "pico/rand.h"
 #include "string.h"
 
