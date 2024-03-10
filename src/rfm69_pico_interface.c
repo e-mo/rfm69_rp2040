@@ -26,7 +26,7 @@ rfm69_context_t *rfm69_create() {
 	return malloc(sizeof(rfm69_context_t));
 }
 
-void rfm69_destory(rfm69_context_t *rfm) {
+void rfm69_destroy(rfm69_context_t *rfm) {
 	free(rfm);
 }
 

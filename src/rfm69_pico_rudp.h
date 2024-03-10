@@ -74,6 +74,8 @@ enum HEADER {
 #define SEQ_NUM_RAND_LIMIT 25 
 // 256 (byte packet num max) - potential range for starting seq num - 1 ack packet
 #define TX_PACKETS_MAX (256 - SEQ_NUM_RAND_LIMIT - 1) 
+// Max bytes that can be sent in one transmission
+#define TX_PAYLOAD_MAX (TX_PACKETS_MAX * PAYLOAD_MAX)
 
 enum FLAG {
     HEADER_FLAG_RBT  = 0x80,
