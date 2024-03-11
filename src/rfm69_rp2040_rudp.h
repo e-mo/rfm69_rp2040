@@ -86,6 +86,7 @@ enum FLAG {
 };
 
 rudp_context_t *rfm69_rudp_create(void);
+void rfm69_rudp_destroy(rudp_context_t *context);
 
 // This is a convenience function which initializes and 
 // configures Rfm69 module to work properly with

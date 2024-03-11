@@ -64,6 +64,12 @@ rudp_context_t *rfm69_rudp_create() {
 	return malloc(sizeof (rudp_context_t));
 }
 
+void rfm69_rudp_destroy(rudp_context_t *context) {
+	if (context == NULL) return;
+	free(context->report);
+	free(context);
+}
+
 bool rfm69_rudp_init(rudp_context_t *context, rfm69_context_t *rfm) {
 	if (context == NULL) return false;
 	if (rfm == NULL) return false;
