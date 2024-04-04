@@ -194,7 +194,7 @@ bool rfm69_fdev_set(rfm69_context_t *rfm, uint32_t fdev);
 B = 2 * Fdev/Bitrate
 0.5 <= B <= 10
 ```
-See (rfm69_configuration) for more information.
+See [notes on configuring the Rfm69](docs/configuration.md) for more information.
 
 ---
 ### rfm69_rxbw_set
@@ -411,79 +411,101 @@ bool rfm69_rssi_measurment_start(rfm69_context_t *rfm);
 
 ---
 ### rfm69_rssi_threshold_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device RSSI threshold to `threshold`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_rssi_threshold_set(rfm69_context_t *rfm, uint8_t threshold);
 ```
-**usage notes:** 
 
 ---
 ### rfm69_power_level_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device power level to `pa_level`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_power_level_set(rfm69_context_t *rfm, int8_t pa_level);
 ```
-**usage notes:** 
+**usage notes:** Valid power levels vary by device model. See [notes on Rfm69 configuration](docs/configuration.md)
 
 ---
 ### rfm69_power_level_get
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets `pa_level` to reflect current device power level.   
+**return:** none.  
+**error:** none. 
 ```c
 void rfm69_power_level_get(rfm69_context_t *rfm, uint8_t *pa_level);
 ```
-**usage notes:** 
+**usage notes:** Power level is cached so no SPI read/write is necessary.
 
 ---
 ### rfm69_tx_start_condition_set
-**description:** 
+**description:** Sets device transmit start condition to `condition`.  
 **return:** `true` if SPI write was successful.
 **error:** `false` if SPI write fails.
 ```c
 bool rfm69_tx_start_condition_set(rfm69_context_t *rfm, RFM69_TX_START_CONDITION condition);
 ```
-**usage notes:** 
+**usage notes:** `RFM69_TX_START_CONDITION` can be chosen from values defined below.
+```c
+// rfm69_rp2040_definitions.h
+#define _TX_START_CONDITION_OFFSET 7
+typedef enum _TX_START_CONDITION {
+    RFM69_TX_FIFO_LEVEL     = 0x00,
+    RFM69_TX_FIFO_NOT_EMPTY = 0x01 << _TX_START_CONDITION_OFFSET,
+} RFM69_TX_START_CONDITION;
+```
 
 ---
 ### rfm69_payload_length_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device payload length to `length`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_payload_length_set(rfm69_context_t *rfm, uint8_t length);
 ```
-**usage notes:** 
 
 ---
 ### rfm69_packet_format_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device packet format to `format`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_packet_format_set(rfm69_context_t *rfm, RFM69_PACKET_FORMAT format);
 ```
-**usage notes:** 
+**usage notes:** `RFM69_PACKET_FORMAT` can be chosen from values defined below.
+```c
+// rfm69_rp2040_definitions.h
+typedef enum _PACKET_FORMAT {
+	RFM69_PACKET_FIXED    = 0x00,
+	RFM69_PACKET_VARIABLE = 0x80
+} RFM69_PACKET_FORMAT;
+```
 
 ---
 ### rfm69_address_filter_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device address filter type to `filter`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_address_filter_set(rfm69_context_t *rfm, RFM69_ADDRESS_FILTER filter);
 ```
-**usage notes:** 
+**usage notes:** `RFM69_ADDRESS_FILTER` can be chosen from values defined below.
+```c
+// rfm69_rp2040_definitions.h
+#define _ADDRESS_FILTER_OFFSET 1
+typedef enum _ADDRESS_FILTER {
+    RFM69_FILTER_NONE           = 0x00,
+    RFM69_FILTER_NODE           = 0x01 << _ADDRESS_FILTER_OFFSET,
+    RFM69_FILTER_NODE_BROADCAST = 0x02 << _ADDRESS_FILTER_OFFSET
+} RFM69_ADDRESS_FILTER;
+```
 
 ---
 ### rfm69_node_address_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device node address to `address`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_node_address_set(rfm69_context_t *rfm, uint8_t address);
 ```
@@ -491,17 +513,17 @@ bool rfm69_node_address_set(rfm69_context_t *rfm, uint8_t address);
 
 ---
 ### rfm69_node_address_get
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets `address` to current device node address.
+**return:** none.  
+**error:** none.  
 ```c
 void rfm69_node_address_get(rfm69_context_t *rfm, uint8_t *address);
 ```
-**usage notes:** 
+**usage notes:** Node address is cached so no SPI read/write required.
 
 ---
 ### rfm69_broadcast_address_set
-**description:** 
+**description:** Sets device broadcast address to `address`.  
 **return:** `true` if SPI write was successful.
 **error:** `false` if SPI write fails.
 ```c
@@ -511,19 +533,18 @@ bool rfm69_broadcast_address_set(rfm69_context_t *rfm, uint8_t address);
 
 ---
 ### rfm69_sync_value_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device sync preamble to first `size` bytes of `value`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_sync_value_set(rfm69_context_t *rfm, uint8_t *value, uint8_t size);
 ```
-**usage notes:** 
 
 ---
 ### rfm69_crc_autoclear_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Turn device CRC autoclear on (`set == true`) or off (`set == false`)  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_crc_autoclear_set(rfm69_context_t *rfm, bool set);
 ```
@@ -531,20 +552,38 @@ bool rfm69_crc_autoclear_set(rfm69_context_t *rfm, bool set);
 
 ---
 ### rfm69_dcfree_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device DC free mode to `setting`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_dcfree_set(rfm69_context_t *rfm, RFM69_DCFREE_SETTING setting);
 ```
-**usage notes:** 
+**usage notes:** `RFM69_DCFREE_SETTING` can be chosen from values defined below.
+```c
+// rfm69_rp2040_definitions.h
+#define _DCFREE_SETTING_OFFSET 5
+typedef enum _DCFREE_SETTING {
+    RFM69_DCFREE_OFF         = 0x00,
+    RFM69_DCFREE_MANCHESTER  = 0x01 << _DCFREE_SETTING_OFFSET,
+    RFM69_DCFREE_WHITENING   = 0x02 << _DCFREE_SETTING_OFFSET
+} RFM69_DCFREE_SETTING;
+```
 
 ---
 ### rfm69_dagc_set
-**description:** 
+**description:** Sets device digital AGC mode to `setting`.
 **return:** `true` if SPI write was successful.
 **error:** `false` if SPI write fails.
 ```c
 bool rfm69_dagc_set(rfm69_context_t *rfm, RFM69_DAGC_SETTING setting);
 ```
-**usage notes:** 
+**usage notes:** Having this set incorrectly was a huge pain point for me which is why the init function does set this to a sane default. Make sure you read your device datasheet to understand the importance of digital AGC.  
+`RFM69_DAGC_SETTING` can be chosen from values defined below.
+```c
+// rfm69_rp2040_definitions.h
+typedef enum _DAGC_SETTING {
+	RFM69_DAGC_NORMAL,
+	RFM69_DAGC_IMPROVED_1 = 0x20,
+	RFM69_DAGC_IMPROVED_0 = 0x30
+} RFM69_DAGC_SETTING;
+```
