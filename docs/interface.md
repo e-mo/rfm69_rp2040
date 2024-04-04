@@ -219,8 +219,8 @@ typedef enum _RXBW_MANTISSA {
     RFM69_RXBW_MANTISSA_24   = 0x2 << _RXBW_MANTISSA_OFFSET, 
 } RFM69_RXBW_MANTISSA ;
 ```
-[Available RxBw settings from RFM69HCW datasheet](https://cdn.sparkfun.com/datasheets/Wireless/General/RFM69HCW-V1.1.pdf#page=26)
-[RegRxBw register info](https://cdn.sparkfun.com/datasheets/Wireless/General/RFM69HCW-V1.1.pdf#page=67)
+[Available RxBw settings from RFM69HCW datasheet](https://cdn.sparkfun.com/datasheets/Wireless/General/RFM69HCW-V1.1.pdf#page=26)  
+[RegRxBw register info](https://cdn.sparkfun.com/datasheets/Wireless/General/RFM69HCW-V1.1.pdf#page=67)  
 
 ---
 ### rfm69_bitrate_set
