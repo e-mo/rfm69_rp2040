@@ -1,26 +1,26 @@
 ### rfm69_create
-**description:** Allocates and returns pointer to rfm69_context_t context object.
-**return:** Pointer to rfm69_context_t object.
-**error:** Returns NULL if malloc fails.
+**description:** Allocates and returns pointer to rfm69_context_t  context object.  
+**return:** Pointer to rfm69_context_t object.  
+**error:** Returns NULL if malloc fails.  
 ```c
 rfm69_context_t * rfm69_create(void);
 ```
 
 ---
 ### rfm69_destroy
-**description:** Deallocates rfm69_context_t context object.
-**return:** None
-**error:** None
+**description:** Deallocates rfm69_context_t context object.  
+**return:** None  
+**error:** None  
 ```c
 void *rfm69_destroy(rfm69_context_t *rfm);
 ```
 
 ---
 ### rfm69_init
-**description:** Initializes rfm69_context_t object. Must be performed prior to calling
-any library functions with context object. Ensures that the hardware wakes up in a known state
-**return:** `true` if init was successful.
-**error:** Returns `false` if init fails.
+**description:** Initializes rfm69_context_t object. Must be performed prior to calling  
+any library functions with context object. Ensures that the hardware wakes up in a known state  
+**return:** `true` if init was successful.  
+**error:** Returns `false` if init fails.  
 ```c
 bool rfm69_init(rfm69_context_t *rfm, const rfm69_config_t *config)
 ```
@@ -55,75 +55,76 @@ int main() {
 
 ---
 ### rfm69_reset
-**description:** Physically resets Rfm69 device by toggling the reset pin in accordance with datasheet
-**return:** None
-**error:** None
+**description:** Physically resets Rfm69 device by toggling the reset pin in accordance with datasheet  
+**return:** None  
+**error:** None  
 ```c
 bool rfm69_reset(rfm69_context_t *rfm);
 ```
-**usage notes:** Reset leaves the hardware in an uncertain state. To ensure correct operation of library, 
+**usage notes:** Reset leaves the hardware in an uncertain state. To ensure correct operation of library,  
 prefer recalling `rfm69_init` which internally calls `rfm69_reset` but also ensures the context object
 reflects the proper state of the hardware.
 
 ---
 ### rfm69_write
-**description:** Writes `len` bytes from `src` buffer to register starting at `address`.
-**return:** `true` if SPI write was successful.
-**error:**  `false` if SPI write fails.
+**description:** Writes `len` bytes from `src` buffer to register starting at `address`.  
+**return:** `true` if SPI write was successful.  
+**error:**  `false` if SPI write fails.  
 ```c
 bool rfm69_write(rfm69_context_t *rfm, uint8_t address, const uint8_t *src, size_t len);
 ```
-**usage notes:** For writing directly to device registers using SPI. For easier register manipulation,
-user should prefer using one of the register specific interface functions.
+**usage notes:** For writing directly to device registers using SPI. For easier register manipulation,  
+user should prefer using one of the register specific interface functions.  
 
 ---
 ### rfm69_write_masked
-**description:**  Writes `src` value to register `address`. Applies `mask` to current register value
-before writing. Used to write to specific fields within a buffer. Unlike `rfm69_write`, cannot be used to burst 
-write to registers. 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:**  Writes `src` value to register `address`. Applies `mask` to current register value  
+before writing. Used to write to specific fields within a buffer. Unlike `rfm69_write`, cannot be used to burst   
+write to registers.   
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_write_masked(rfm69_context_t *rfm, uint8_t address, const uint8_t *src, uint8_t mask);
 ```
-**usage notes:** For writing masked values directly to device registers using SPI. For easier 
-register manipulation, user should prefer using one of the register specific interface functions.
+**usage notes:** For writing masked values directly to device registers using SPI. For easier   
+register manipulation, user should prefer using one of the register specific interface functions.  
 
 ---
 ### rfm69_read
-**description:** Reads `len` bytes starting from register `address` to `dst` buffer.
-**return:** `true` if SPI read was successful.
-**error:**  `false` if SPI read fails.
+**description:** Reads `len` bytes starting from register `address` to `dst` buffer.  
+**return:** `true` if SPI read was successful.  
+**error:**  `false` if SPI read fails.  
 ```c
 bool rfm69_read(rfm69_context_t *rfm, uint8_t address, const uint8_t *dst, size_t len);
 ```
-**usage notes:** For reading directly from device registers using SPI. For easier register manipulation,
-user should prefer using one of the register specific interface functions.
+**usage notes:** For reading directly from device registers using SPI. For easier register manipulation,  
+user should prefer using one of the register specific interface functions.  
 
 ---
 ### rfm69_read_masked
-**description:**  Reads value from register `address` into `dst`. Applies `mask` to current register 
-value after reading. Used to read specific fields within a buffer. Unlike `rfm69_read`, 
-cannot be used to burst read from registers. 
-**return:** `true` if SPI read was successful.
-**error:** `false` if SPI read fails.
+**description:**  Reads value from register `address` into `dst`. Applies `mask` to current register   
+value after reading. Used to read specific fields within a buffer. Unlike `rfm69_read`,  
+cannot be used to burst read from registers.   
+**return:** `true` if SPI read was successful.  
+**error:** `false` if SPI read fails.  
 ```c
 bool rfm69_read_masked(rfm69_context_t *rfm, uint8_t address, const uint8_t *dst, uint8_t mask);
 ```
-**usage notes:** For reading masked values directly from device registers using SPI. 
-For easier register manipulation, user should prefer using one of the register specific interface 
-functions.
+**usage notes:** For reading masked values directly from device registers using SPI.   
+For easier register manipulation, user should prefer using one of the register specific interface   
+functions.  
 
 ---
 ### rfm69_irq1_flag_state
-**description:** Sets value of `state` to match `flag` in IRQ register 1.
-**return:** `true` if SPI read was successful.
-**error:** `false` if SPI read fails.
+**description:** Sets value of `state` to match `flag` in IRQ register 1.  
+**return:** `true` if SPI read was successful.  
+**error:** `false` if SPI read fails.  
 ```c
 bool rfm69_irq1_flag_state(rfm69_context_t *rfm, RFM69_IRQ1_FLAG flag, bool *state);
 ```
 **usage notes:** Used to check one of the boolean state flags in the IRQ1 register.
 ```c
+// rfm69_rp2040_definitions.h
 // legal flag values (rfm69_rp2040_definitions.h)
 typedef enum _IRQ1_FLAG {
     RFM69_IRQ1_FLAG_SYNC_ADDRESS_MATCH = 0x01,
@@ -139,14 +140,15 @@ typedef enum _IRQ1_FLAG {
 
 ---
 ### rfm69_irq2_flag_state
-**description:** Sets value of `state` to match `flag` in IRQ register 2.
-**return:** `true` if SPI read was successful.
+**description:** Sets value of `state` to match `flag` in IRQ register 2.  
+**return:** `true` if SPI read was successful.  
 **error:** `false` if SPI read fails.
 ```c
 bool rfm69_irq2_flag_state(rfm69_context_t *rfm, RFM69_IRQ2_FLAG flag, bool *state);
 ```
 **usage notes:** Used to check one of the boolean state flags in the IRQ2 register.
 ```c
+// rfm69_rp2040_definitions.h
 // legal flag values (rfm69_rp2040_definitions.h)
 typedef enum _IRQ_2_FLAG {
     RFM69_IRQ2_FLAG_CRC_OK         = 0x02,
@@ -161,9 +163,9 @@ typedef enum _IRQ_2_FLAG {
 
 ---
 ### rfm69_frequency_set
-**description:** Sets device frequency to `frequency`.
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device frequency to `frequency`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_frequency_set(rfm69_context_t *rfm, uint23_t frequency);
 ```
@@ -171,9 +173,9 @@ bool rfm69_frequency_set(rfm69_context_t *rfm, uint23_t frequency);
 
 ---
 ### rfm69_frequency_get
-**description:** Returns `frequency` set to current device frequency in MHz.
-**return:** `true` if SPI read was successful.
-**error:** `false` if SPI read fails.
+**description:** Returns `frequency` set to current device frequency in MHz.  
+**return:** `true` if SPI read was successful.  
+**error:** `false` if SPI read fails.  
 ```c
 bool rfm69_frequency_set(rfm69_context_t *rfm, uint23_t *frequency);
 ```
@@ -181,13 +183,13 @@ bool rfm69_frequency_set(rfm69_context_t *rfm, uint23_t *frequency);
 
 ---
 ### rfm69_fdev_set
-**description:** Sets device frequency deviation to `fdev`.
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device frequency deviation to `fdev`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_fdev_set(rfm69_context_t *rfm, uint32_t fdev);
 ```
-**usage notes:** Proper frequency deviation values are tightly coupled with bitrate.
+**usage notes:** Proper frequency deviation values are tightly coupled with bitrate.  
 ```
 B = 2 * Fdev/Bitrate
 0.5 <= B <= 10
@@ -196,19 +198,21 @@ See (rfm69_configuration) for more information.
 
 ---
 ### rfm69_rxbw_set
-**description:** Sets device receiver bandwidth `mantissa` and `exponent` register values.
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device receiver bandwidth `mantissa` and `exponent` register values.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_rxbw_set(rfm69_context_t *rfm, RFM69_RXBW_MANTISSA mantissa, uint8_t exponent);
 ```
-**usage notes:** Proper RXBW values are tightly coupled with frequency deviation and bitrate.
+**usage notes:** Proper RXBW values are tightly coupled with frequency deviation and bitrate.  
 ```
 RxBw >= Fdev + BR/2
 ```
 Ideally, RXBW is set as close to Beta (Fdev + BR/2) as possible. 
 ```c
+// rfm69_rp2040_definitions.h
 // Legal mantissa values
+#define _RXBW_MANTISSA_OFFSET 3
 typedef enum _RXBW_MANTISSA {
     RFM69_RXBW_MANTISSA_16   = 0x0 << _RXBW_MANTISSA_OFFSET, 
     RFM69_RXBW_MANTISSA_20   = 0x1 << _RXBW_MANTISSA_OFFSET, 
@@ -220,13 +224,13 @@ typedef enum _RXBW_MANTISSA {
 
 ---
 ### rfm69_bitrate_set
-**description:** Sets device modem bitrate register to `bit_rate`.
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device modem bitrate register to `bit_rate`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_bitrate_set(rfm69_context_t *rfm, RFM69_MODEM_BITRATE bit_rate);
 ```
-**usage notes:** For simplicity and compatibility, bitrates should be chosen from values defined below.
+**usage notes:** For simplicity and compatibility, bitrates should be chosen from values defined below.  
 ```c
 typedef enum _MODEM_BITRATE {
 // Classic modem baud rates (multiples of 1.2 kbps)
@@ -260,23 +264,25 @@ typedef enum _MODEM_BITRATE {
 
 ---
 ### rfm69_bitrate_get
-**description:** Sets `bit_rate` to current modem bitrate.
-**return:** `true` if SPI read was successful.
-**error:** `false` if SPI read fails.
+**description:** Sets `bit_rate` to current modem bitrate.  
+**return:** `true` if SPI read was successful.  
+**error:** `false` if SPI read fails.  
 ```c
 bool rfm69_bitrate_set(rfm69_context_t *rfm, uint16_t *bit_rate);
 ```
 
 ---
 ### rfm69_mode_set
-**description:** Sets device operating mode to `mode`.
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device operating mode to `mode`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_mode_set(rfm69_context_t *rfm, RFM69_OP_MODE mode);
 ```
-**usage notes:** Mode should be chosen from values defined below.
+**usage notes:** Mode should be chosen from values defined below.  
 ```c
+// rfm69_rp2040_definitions.h
+#define _OP_MODE_OFFSET 2
 typedef enum _OP_MODE {
     RFM69_OP_MODE_DEFAULT = 0x01,
     RFM69_OP_MODE_SLEEP   = 0x00,
@@ -291,93 +297,117 @@ typedef enum _OP_MODE {
 
 ---
 ### rfm69_mode_get
-**description:** Sets `mode` to current device operating mode value.
-**return:** `true` if SPI read was successful.
-**error:** `false` if SPI read fails.
+**description:** Sets `mode` to current device operating mode value.  
+**return:** `true` if SPI read was successful.  
+**error:** `false` if SPI read fails.  
 ```c
 bool rfm69_mode_get(rfm69_context_t *rfm, uint8_t *mode);
 ```
 
 ---
 ### rfm69_data_mode_set
-**description:** 
-**return:** `true` if SPI write was successful.
+**description:** Sets device data mode to `mode`.  
+**return:** `true` if SPI write was successful.  
 **error:** `false` if SPI write fails.
 ```c
 bool rfm69_data_mode_set(rfm69_context_t *rfm, RFM69_DATA_MODE mode);
 ```
-**usage notes:** 
+**usage notes:** Data mode must be chosen from values defined below.
+```c
+// rfm69_rp2040_definitions.h
+#define _DATA_MODE_OFFSET 5
+typedef enum _DATA_MODE {
+    RFM69_DATA_MODE_PACKET,
+    RFM69_DATA_MODE_CONTINUOUS_BIT_SYNC = 0x02 << _DATA_MODE_OFFSET,
+    RFM69_DATA_MODE_CONTINUOUS          = 0x03 << _DATA_MODE_OFFSET,
+    RFM69_DATA_MODE_MASK                = 0x60
+} RFM69_DATA_MODE;
+```
 
 ---
 ### rfm69_data_mode_get
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets `mode` to reflect current device data mode.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_data_mode_get(rfm69_context_t *rfm, uint8_t *mode);
 ```
-**usage notes:** 
 
 ---
 ### rfm69_modulation_type_set
-**description:** 
-**return:** `true` if SPI write was successful.
+**description:** Sets device modulation type to `type`.  
+**return:** `true` if SPI write was successful.  
 **error:** `false` if SPI write fails.
 ```c
 bool rfm69_modulation_type_set(rfm69_context_t *rfm, RFM69_MODULATION_TYPE type);
 
 ```
-**usage notes:** 
+**usage notes:** Modulation type must be choson from values defined below.
+```c
+// rfm69_rp2040_definitions.h
+#define _MODULATION_TYPE_OFFSET 3
+typedef enum _MODULATION_TYPE {
+    RFM69_MODULATION_FSK       = 0x00,
+    RFM69_MODULATION_OOK       = 0x01 << _MODULATION_TYPE_OFFSET,
+    RFM69_MODULATION_TYPE_MASK = 0x18
+} RFM69_MODULATION_TYPE;
+```
 
 ---
 ### rfm69_modulation_type_get
-**description:** 
-**return:** `true` if SPI write was successful.
+**description:** Sets `type` to reflect current modulation type.  
+**return:** `true` if SPI write was successful.  
 **error:** `false` if SPI write fails.
 ```c
 bool rfm69_modulation_type_get(rfm69_context_t *rfm, uint8_t *type);
 ```
-**usage notes:** 
 
 ---
 ### rfm69_modulation_shaping_set
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** Sets device modulation shaping mode to `shaping`.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_modulation_shaping_set(rfm69_context_t *rfm, RFM69_MODULATION_SHAPING shaping);
 ```
-**usage notes:** 
+**usage notes:** Modulation shaping mode must be chosen from values defined below.
+```c
+// rfm69_rp2040_definitions.h
+typedef enum _MODULATION_SHAPING {
+    RFM69_NO_SHAPING,
+    RFM69_FSK_GAUSSIAN_1_0        = 0x01, RFM69_OOK_FCUTOFF_BR   = 0x01,
+    RFM69_FSK_GAUSSIAN_0_5        = 0x02, RFM69_OOK_FCUTOFF_2XBR = 0x02,
+    RFM69_FSK_GAUSSIAN_0_3        = 0x03,
+    RFM69_MODULATION_SHAPING_MASK = 0x03
+} RFM69_MODULATION_SHAPING;
+```
 
 ---
 ### rfm69_modulation_shaping_get
-**description:** 
-**return:** `true` if SPI write was successful.
-**error:** `false` if SPI write fails.
+**description:** sets `shaping` to reflect current device modulation shaping mode.  
+**return:** `true` if SPI write was successful.  
+**error:** `false` if SPI write fails.  
 ```c
 bool rfm69_modulation_shaping_get(rfm69_context_t *rfm, uint8_t *shaping);
 ```
-**usage notes:** 
 
 ---
 ### rfm69_rssi_measurment_get
-**description:** 
+**description:** Sets `rssi` to last RSSI value measured by device.
 **return:** `true` if SPI write was successful.
 **error:** `false` if SPI write fails.
 ```c
 bool rfm69_rssi_measurment_get(rfm69_context_t *rfm, int16_t *rssi);
 ```
-**usage notes:** 
 
 ---
 ### rfm69_rssi_measurment_start
-**description:** 
+**description:** Trigger device to begin RSSI measurement.
 **return:** `true` if SPI write was successful.
 **error:** `false` if SPI write fails.
 ```c
 bool rfm69_rssi_measurment_start(rfm69_context_t *rfm);
 ```
-**usage notes:** 
 
 ---
 ### rfm69_rssi_threshold_set
