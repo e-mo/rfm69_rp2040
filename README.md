@@ -1,7 +1,7 @@
 # RFM69_RP2040 - 0.9.1
-A zero-assumptions library for interface the RP2040 microcontroller with the RFM69 family of transceivers.
+A zero-assumptions library for interfacing the RP2040 microcontroller with the RFM69 family of transceivers.
 ### Note on using this library
-This library exposes a low level interface for interacting with the Rfm69 family of transceivers with the RP2040 microcontroller. Usage of this library assumes intimate knowledge of your radio's datasheet, and beyond some [configuration notes] talking about a few specific pain points which I believe are poorly represented in the documentation, I do very little to explain how the Rfm69 transceivers function.  
+This library exposes a low level interface for interacting with the Rfm69 family of transceivers with the RP2040 microcontroller. Usage of this library assumes intimate knowledge of your radio's datasheet, and beyond some [configuration notes](docs/configuration.md) talking about a few specific pain points which I believe are poorly represented in the documentation, I do very little to explain how the Rfm69 transceivers function.  
 
 ---
 ## Low Level Interface
@@ -32,5 +32,5 @@ note: While the current state of this interface is a bit in flux, it currently w
 [RFM69HCW Datasheet](https://cdn.sparkfun.com/datasheets/Wireless/General/RFM69HCW-V1.1.pdf)
 
 ---
-If you need help or have a suggestion of any kind (please contribute!), contact me:  
+If you need help or have a suggestion/question of any kind, contact me:  
 <emorse@tech.dev>
