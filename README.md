@@ -28,8 +28,8 @@ note: While the current state of this interface is a bit in flux, it currently w
 
 ---
 ## Other Helpful Stuff
-[Notes on Configuring RFM69](docs/configuration.md) 
-[RFM69HCW Datasheet]()
+[Notes on Configuring RFM69](docs/configuration.md)  
+[RFM69HCW Datasheet](https://cdn.sparkfun.com/datasheets/Wireless/General/RFM69HCW-V1.1.pdf)
 
 ---
 If you need help or have a suggestion of any kind (please contribute!), contact me:  
