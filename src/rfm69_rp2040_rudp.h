@@ -23,7 +23,18 @@
 
 #include "rfm69_rp2040_interface.h"
 
-typedef struct rudp_context_ rudp_context_t;
+typedef struct rudp_context_ {
+	rfm69_context_t *rfm;
+	struct trx_report_s report;
+	uint8_t *buffer;
+	uint buffer_size;
+	uint8_t *payload;
+	uint payload_size;
+	uint tx_timeout;
+	uint rx_timeout;
+	uint8_t tx_retries;
+	rudp_baud_t baud;
+} rudp_context_t;
 
 typedef enum _RUDP_RETURN {
     RUDP_OK,
@@ -39,7 +50,7 @@ typedef enum RUDP_BAUD {
 	RUDP_BAUD_NUM
 } rudp_baud_t;
 
-typedef struct _trx_report {
+typedef struct trx_report_s {
     uint payload_size;
 	uint bytes_sent;
 	uint bytes_received; 
@@ -57,7 +68,7 @@ typedef struct _trx_report {
 	RUDP_RETURN return_status;
 	uint8_t tx_address;
 	uint8_t rx_address;
-} trx_report_t;
+};
 
 enum HEADER {
     HEADER_PACKET_SIZE,
@@ -85,8 +96,8 @@ enum FLAG {
     HEADER_FLAG_OK   = 0x08,
 };
 
-rudp_context_t *rfm69_rudp_create(void);
-void rfm69_rudp_destroy(rudp_context_t *context);
+//rudp_context_t *rfm69_rudp_create(void);
+//void rfm69_rudp_destroy(rudp_context_t *context);
 
 // This is a convenience function which initializes and 
 // configures Rfm69 module to work properly with
@@ -123,8 +134,8 @@ bool rfm69_rudp_payload_set(
 bool rfm69_rudp_address_set(rudp_context_t *context, uint8_t address);
 
 // Returns a copy of last TRX report struct
-trx_report_t * rfm69_rudp_report_get(rudp_context_t *context);
-void rfm69_rudp_report_print(trx_report_t *report);
+struct trx_report_s * rfm69_rudp_report_get(rudp_context_t *context);
+void rfm69_rudp_report_print(struct trx_report_s *report);
 
 // Attempts to send payload to provided radio address
 bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address);

@@ -20,7 +20,6 @@
 
 #include "rfm69_rp2040_interface.h"
 #include "stdlib.h"
-#include "pico/malloc.h"
 
 // DEPRECATED
 //rfm69_context_t *rfm69_create() {

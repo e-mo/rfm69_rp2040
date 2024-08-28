@@ -26,18 +26,6 @@
 // Context struct that handles internal data state of RUDP protocol
 // and Rfm69 hardware
 
-struct rudp_context_ {
-	rfm69_context_t *rfm;
-	trx_report_t *report;
-	uint8_t *buffer;
-	uint buffer_size;
-	uint8_t *payload;
-	uint payload_size;
-	uint tx_timeout;
-	uint rx_timeout;
-	uint8_t tx_retries;
-	rudp_baud_t baud;
-};
 
 
 // BAUD SETTINGS
@@ -60,25 +48,17 @@ const baud_settings_t BAUD_SETTINGS_LOOKUP[RUDP_BAUD_NUM] = {
 
 // FUNCS
 
-rudp_context_t *rfm69_rudp_create() {
-	return malloc(sizeof (rudp_context_t));
-}
-
-void rfm69_rudp_destroy(rudp_context_t *context) {
-	if (context == NULL) return;
-	free(context->report);
-	free(context);
-}
+//rudp_context_t *rfm69_rudp_create() {
+//	return malloc(sizeof (rudp_context_t));
+//}
+//
+//void rfm69_rudp_destroy(rudp_context_t *context) {
+//	free(context->report);
+//	free(context);
+//}
 
 bool rfm69_rudp_init(rudp_context_t *context, rfm69_context_t *rfm) {
-	if (context == NULL) return false;
-	if (rfm == NULL) return false;
-
 	context->rfm = rfm;
-	context->report = NULL;
-
-	context->report = calloc(1, sizeof (trx_report_t));
-	if (context->report == NULL) return false;
 
 	// Default settings for rudp
 	context->buffer = NULL;
@@ -120,24 +100,20 @@ bool rfm69_rudp_baud_set(rudp_context_t *context, rudp_baud_t baud) {
 }
 
 bool rfm69_rudp_tx_timeout_set(rudp_context_t *context, uint timeout) {
-	if (context == NULL) return false;
 	context->tx_timeout = timeout;
 	return true;
 }
 
 int rfm69_rudp_tx_timeout_get(const rudp_context_t *context) {
-	if (context == NULL) return -1;
 	return context->tx_timeout;
 }
 
 bool rfm69_rudp_rx_timeout_set(rudp_context_t *context, uint timeout) {
-	if (context == NULL) return false;
 	context->rx_timeout = timeout;
 	return true;
 }
 
 int rfm69_rudp_rx_timeout_get(const rudp_context_t *context) {
-	if (context == NULL) return -1;
 	return context->rx_timeout;
 }
 
@@ -147,8 +123,6 @@ bool rfm69_rudp_rx_buffer_set(
 		uint buffer_size
 ) 
 {
-	if (context == NULL || buffer == NULL) return false;
-
 	context->buffer = (uint8_t *) buffer;
 	context->buffer_size = buffer_size;
 
@@ -156,8 +130,6 @@ bool rfm69_rudp_rx_buffer_set(
 }
 
 void * rfm69_rudp_rx_buffer_get(rudp_context_t *context, uint *size) {
-	if (context == NULL) return NULL;
-
 	*size = context->buffer_size;
 	return context->buffer;
 }
@@ -168,8 +140,6 @@ bool rfm69_rudp_payload_set(
 		uint payload_size
 )
 {
-	if (context == NULL || payload == NULL) return false;
-
 	context->payload = (uint8_t *) payload;
 	context->payload_size = payload_size;
 
@@ -181,12 +151,11 @@ bool rfm69_rudp_address_set(rudp_context_t *context, uint8_t address) {
 }
 
 
-trx_report_t * rfm69_rudp_report_get(rudp_context_t *context) {
-	if (context == NULL) return NULL;
+struct trx_report_s * rfm69_rudp_report_get(rudp_context_t *context) {
 	return context->report;
 }
 
-void rfm69_rudp_report_print(trx_report_t *report) {
+void rfm69_rudp_report_print(struct trx_report_s *report) {
 	if (report == NULL) return;
 
 	printf("payload_size: %u\n", report->payload_size);
@@ -231,7 +200,7 @@ bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address) {
 
 	// Set locals with context
 	rfm69_context_t *rfm = context->rfm;
-	trx_report_t *report = context->report;
+	struct trx_report_s *report = context->report;
 	uint8_t *payload = context->payload;
 	uint payload_size = context->payload_size;
 	uint timeout = context->tx_timeout;
@@ -460,7 +429,7 @@ CLEANUP:
 bool rfm69_rudp_receive(rudp_context_t *context) {
 	// Local variables to avoid refactoring
 	rfm69_context_t *rfm = context->rfm; 
-	trx_report_t *report = context->report;
+	struct trx_report_s *report = context->report;
 	uint8_t *payload = context->buffer;
     uint payload_buffer_size = context->buffer_size;
 	uint per_packet_delay = BAUD_SETTINGS_LOOKUP[context->baud].pp_delay;

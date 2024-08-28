@@ -1,21 +1,3 @@
-### rfm69_create
-**description:** Allocates and returns pointer to rfm69_context_t  context object.  
-**return:** Pointer to rfm69_context_t object.  
-**error:** Returns NULL if malloc fails.  
-```c
-rfm69_context_t * rfm69_create(void);
-```
-
----
-### rfm69_destroy
-**description:** Deallocates rfm69_context_t context object.  
-**return:** None  
-**error:** None  
-```c
-void *rfm69_destroy(rfm69_context_t *rfm);
-```
-
----
 ### rfm69_init
 **description:** Initializes rfm69_context_t object. Must be performed prior to calling  
 any library functions with context object. Ensures that the hardware wakes up in a known state  
@@ -40,8 +22,8 @@ typedef struct _rfm69_config {
 // Initialization example
 #include "rfm69_rp2040.h"
 int main() {
-    rfm69_context_t *rfm = rfm69_create(); // Check for NULL here
-    rfm69_config_t config = {
+    rfm69_context_t rfm;
+    struct rfm69_config_s config = {
         .spi = spi0,
         .pin_miso = 16,
         .pin_mosi = 19,
@@ -49,7 +31,7 @@ int main() {
         .pin_sck = 18,
         .pin_rst = 20
     };
-    bool success = rfm69_init(rfm, &config);
+    bool success = rfm69_init(&rfm, &config);
 }
 ```
 
