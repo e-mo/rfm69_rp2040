@@ -319,25 +319,3 @@ typedef enum _DAGC_SETTING {
 	RFM69_DAGC_IMPROVED_1 = 0x20,
 	RFM69_DAGC_IMPROVED_0 = 0x30
 } RFM69_DAGC_SETTING;
-
-// Incomplete type representing Rfm69 radio module.
-typedef struct _rfm69_context {
-    spi_inst_t *spi; // Initialized SPI instance
-    uint pin_cs;
-    uint pin_rst;
-    RFM69_OP_MODE op_mode;
-    int8_t pa_level;
-    RFM69_PA_MODE pa_mode;
-	RFM69_RETURN return_status;
-    uint8_t ocp_trim;
-	uint8_t address;
-} rfm69_context_t;
-
-typedef struct _rfm69_config {
-	spi_inst_t *spi;
-	uint pin_miso;
-	uint pin_mosi;
-	uint pin_cs;
-	uint pin_sck;
-	uint pin_rst;
-} rfm69_config_t;

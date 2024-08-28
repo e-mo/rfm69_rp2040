@@ -22,17 +22,18 @@
 #include "stdlib.h"
 #include "pico/malloc.h"
 
-rfm69_context_t *rfm69_create() {
-	return malloc(sizeof(rfm69_context_t));
-}
-
-void rfm69_destroy(rfm69_context_t *rfm) {
-	free(rfm);
-}
+// DEPRECATED
+//rfm69_context_t *rfm69_create() {
+//	return malloc(sizeof(rfm69_context_t));
+//}
+//
+//void rfm69_destroy(rfm69_context_t *rfm) {
+//	free(rfm);
+//}
 
 bool rfm69_init(
         rfm69_context_t *rfm,
-		const rfm69_config_t *config
+		const struct rfm69_config_s *config
 )
 {
 	bool success = false;

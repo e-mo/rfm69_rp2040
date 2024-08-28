@@ -28,8 +28,30 @@
 
 #include "rfm69_rp2040_definitions.h"
 
-rfm69_context_t *rfm69_create();
-void rfm69_destroy(rfm69_context_t *rfm);
+typedef struct _rfm69_context {
+    spi_inst_t *spi; // Initialized SPI instance
+    uint pin_cs;
+    uint pin_rst;
+    RFM69_OP_MODE op_mode;
+    int8_t pa_level;
+    RFM69_PA_MODE pa_mode;
+	RFM69_RETURN return_status;
+    uint8_t ocp_trim;
+	uint8_t address;
+} rfm69_context_t;
+
+typedef struct rfm69_config_s {
+	spi_inst_t *spi;
+	uint pin_miso;
+	uint pin_mosi;
+	uint pin_cs;
+	uint pin_sck;
+	uint pin_rst;
+};
+
+// DEPRECATED
+// rfm69_context_t *rfm69_create();
+// void rfm69_destroy(rfm69_context_t *rfm);
 
 // Initializes passed in Rfm69 pointer and sets pins to proper
 // mode for spi communication. Passed pins must match the passed in
@@ -41,7 +63,7 @@ void rfm69_destroy(rfm69_context_t *rfm);
 // see no reason to provide an rfm69 specific free function.
 bool rfm69_init(
     rfm69_context_t *rfm,
-	const rfm69_config_t *config
+	const struct rfm69_config_s *config
 );
 
 // Resets the module by setting the reset pin for 100ms
