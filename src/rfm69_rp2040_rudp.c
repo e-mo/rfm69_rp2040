@@ -152,7 +152,7 @@ bool rfm69_rudp_address_set(rudp_context_t *context, uint8_t address) {
 
 
 struct trx_report_s * rfm69_rudp_report_get(rudp_context_t *context) {
-	return context->report;
+	return &context->report;
 }
 
 void rfm69_rudp_report_print(struct trx_report_s *report) {
@@ -200,7 +200,7 @@ bool rfm69_rudp_transmit(rudp_context_t *context, uint8_t address) {
 
 	// Set locals with context
 	rfm69_context_t *rfm = context->rfm;
-	struct trx_report_s *report = context->report;
+	struct trx_report_s *report = &context->report;
 	uint8_t *payload = context->payload;
 	uint payload_size = context->payload_size;
 	uint timeout = context->tx_timeout;
@@ -429,7 +429,7 @@ CLEANUP:
 bool rfm69_rudp_receive(rudp_context_t *context) {
 	// Local variables to avoid refactoring
 	rfm69_context_t *rfm = context->rfm; 
-	struct trx_report_s *report = context->report;
+	struct trx_report_s *report = &context->report;
 	uint8_t *payload = context->buffer;
     uint payload_buffer_size = context->buffer_size;
 	uint per_packet_delay = BAUD_SETTINGS_LOOKUP[context->baud].pp_delay;

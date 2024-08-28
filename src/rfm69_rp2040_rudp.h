@@ -23,19 +23,6 @@
 
 #include "rfm69_rp2040_interface.h"
 
-typedef struct rudp_context_ {
-	rfm69_context_t *rfm;
-	struct trx_report_s report;
-	uint8_t *buffer;
-	uint buffer_size;
-	uint8_t *payload;
-	uint payload_size;
-	uint tx_timeout;
-	uint rx_timeout;
-	uint8_t tx_retries;
-	rudp_baud_t baud;
-} rudp_context_t;
-
 typedef enum _RUDP_RETURN {
     RUDP_OK,
     RUDP_OK_UNCONFIRMED,
@@ -50,7 +37,17 @@ typedef enum RUDP_BAUD {
 	RUDP_BAUD_NUM
 } rudp_baud_t;
 
-typedef struct trx_report_s {
+
+enum HEADER {
+    HEADER_PACKET_SIZE,
+    HEADER_RX_ADDRESS,
+    HEADER_TX_ADDRESS,
+    HEADER_FLAGS,
+    HEADER_SEQ_NUMBER,
+    HEADER_SIZE // Keep this at end
+};
+
+struct trx_report_s {
     uint payload_size;
 	uint bytes_sent;
 	uint bytes_received; 
@@ -70,14 +67,19 @@ typedef struct trx_report_s {
 	uint8_t rx_address;
 };
 
-enum HEADER {
-    HEADER_PACKET_SIZE,
-    HEADER_RX_ADDRESS,
-    HEADER_TX_ADDRESS,
-    HEADER_FLAGS,
-    HEADER_SEQ_NUMBER,
-    HEADER_SIZE // Keep this at end
-};
+typedef struct rudp_context_ {
+	rfm69_context_t *rfm;
+	struct trx_report_s report;
+	uint8_t *buffer;
+	uint buffer_size;
+	uint8_t *payload;
+	uint payload_size;
+	uint tx_timeout;
+	uint rx_timeout;
+	uint8_t tx_retries;
+	rudp_baud_t baud;
+} rudp_context_t;
+
 
 #define PAYLOAD_BEGIN (HEADER_SIZE)
 #define HEADER_EFFECTIVE_SIZE (HEADER_SIZE - 1) // HEADER_SIZE - length byte (it isn't part of its own count)

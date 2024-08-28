@@ -40,7 +40,7 @@ typedef struct _rfm69_context {
 	uint8_t address;
 } rfm69_context_t;
 
-typedef struct rfm69_config_s {
+struct rfm69_config_s {
 	spi_inst_t *spi;
 	uint pin_miso;
 	uint pin_mosi;

@@ -37,8 +37,6 @@ bool rfm69_init(
 {
 	bool success = false;
 
-    spi_init(config->spi, 1000*1000); // Defaults to master mode, which we want
-
 	*rfm = (rfm69_context_t) {
 		.spi = config->spi,
 		.pin_cs = config->pin_cs,
@@ -50,9 +48,6 @@ bool rfm69_init(
 		.address = 0
 	};
 
-    gpio_set_function(config->pin_miso, GPIO_FUNC_SPI);
-    gpio_set_function(config->pin_sck,  GPIO_FUNC_SPI);
-    gpio_set_function(config->pin_mosi, GPIO_FUNC_SPI);
 
     // Chip select is active-low, so we'll initialise it to a driven-high state
     gpio_init(config->pin_cs);
