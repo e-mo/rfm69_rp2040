@@ -78,7 +78,20 @@ int main() {
 			}
 		} 
 
-		printf("Tx success!\n");
+		// If receive returns false, check return_status
+		// in report.
+		if (!rfm69_rudp_receive(_rudp)) {
+			switch (report->return_status) {
+			case RUDP_TIMEOUT:
+				printf("Rx timed out!\n");
+				break;
+			default:
+				printf("Rx failed due to an error!\n");
+			}
+		}
+
+		printf("Rx success!\n");
+		printf("Payload: %.*s\n", report->bytes_received, buffer);
 
 		sleep_ms(1000);
 	}
