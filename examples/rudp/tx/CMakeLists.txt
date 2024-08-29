@@ -23,14 +23,15 @@ endif()
 set(target "rudp_tx_example")
 project(${target} C CXX ASM)
 
-add_subdirectory(.. libs/rfm69_rp2040)
+set(RFM69_LIB_PATH "../../..")
+add_subdirectory(${RFM69_LIB_PATH} libs/rfm69_rp2040)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(${target} src/rudp_example.c)
+add_executable(${target} src/rudp_tx_example.c)
 
 pico_enable_stdio_uart(${target} 0)
 pico_enable_stdio_usb(${target} 1)
