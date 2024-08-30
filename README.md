@@ -21,10 +21,8 @@ note: While the current state of this interface is a bit in flux, it currently w
 
 ---
 ## Examples
-[low level radio init]  
-[low level tx/rx] - requires two transceivers and two picos.  
-[reliable UDP init]  
-[reliable UDP tx/rx] - requires two transceivers and two picos.  
+[low level tx/rx]
+[reliable UDP tx/rx](https://github.com/e-mo/rfm69_rp2040/tree/main/examples/rudp)
 
 ---
 ## Other Helpful Stuff
