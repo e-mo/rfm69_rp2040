@@ -31,7 +31,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(${target} src/rudp_tx_example.c)
+add_executable(${target} src/ll_tx_example.c)
 
 pico_enable_stdio_uart(${target} 0)
 pico_enable_stdio_usb(${target} 1)

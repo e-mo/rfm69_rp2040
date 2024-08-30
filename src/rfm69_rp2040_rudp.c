@@ -79,7 +79,7 @@ bool rfm69_rudp_init(rudp_context_t *context, rfm69_context_t *rfm) {
 	// communication with external radio
     rfm69_dcfree_set(rfm, RFM69_DCFREE_WHITENING);
 	rfm69_packet_format_set(rfm, RFM69_PACKET_VARIABLE);
-	rfm69_payload_length_set(rfm, PAYLOAD_MAX)
+	rfm69_payload_length_set(rfm, PAYLOAD_MAX);
 
 	rfm69_mode_set(rfm, RFM69_OP_MODE_SLEEP);
 	return true;

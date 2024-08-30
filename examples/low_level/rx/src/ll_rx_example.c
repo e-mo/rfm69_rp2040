@@ -59,40 +59,42 @@ int main() {
 	
 	// Set addresses
 
-	const uint8_t tx_address = 0x00; // Our address
-    rfm69_node_address_set(&rfm, tx_address); 
-
 	const uint8_t rx_address = 0x01; // Destination radio address
+    rfm69_node_address_set(&rfm, rx_address); 
 
 	// Build payload
 	rfm69_packet_format_set(&rfm, RFM69_PACKET_VARIABLE);
+	// Packet size > payload length will be refused
+	rfm69_payload_length_set(&rfm, 100);
 
-	uint8_t payload = 0x45;
-	// Variable packet format pg.52 of datasheet
-	uint8_t buffer[3] = {2, rx_address, payload};
-
-	rfm69_mode_set(&rfm, RFM69_OP_MODE_SLEEP);
+	uint8_t buf[100] = {0};
+	rfm69_mode_set(&rfm, RFM69_OP_MODE_RX);
 	
-	// Send payload every 1 sec
+	// Wait for packets
 	for(ever) {
 
-		// Fill FIFO while in sleep
-		rfm69_write(&rfm, RFM69_REG_FIFO, buffer, 3);
-
-		// Switch to TX mode to send buffer
-		rfm69_mode_set(&rfm, RFM69_OP_MODE_TX);
-
-        // Wait for packet sent flag
-        bool state = false;
-        while (!state) {
-            rfm69_irq2_flag_state(&rfm, RFM69_IRQ2_FLAG_PACKET_SENT, &state);
+		// Poll payload ready flag
+		bool state = false;
+		while (!state) {
+            rfm69_irq2_flag_state(&rfm, RFM69_IRQ2_FLAG_PAYLOAD_READY, &state);
+			sleep_ms(10);
         }
+        printf("Packet received!\n");
 
-        printf("Packet sent!\n");
+		// Read payload size byte from FIFO
+		rfm69_read(&rfm, RFM69_REG_FIFO, buf, 1);
+		printf("%u bytes received.\n", buf[0]);
+		// Read remaining bytes from FIFO 
+		rfm69_read(&rfm, RFM69_REG_FIFO, buf+1, buf[0]);
 
-		// Put radio back to sleep between transmissions
-		rfm69_mode_set(&rfm, RFM69_OP_MODE_SLEEP);
-		sleep_ms(1000);
+		// Second byte is address
+		printf("Address byte: 0x%02X\n", buf[1]);
+
+		// Print out payload (in this case a string)
+		printf("Payload: ");
+		for (int i = 2; i <= buf[0]-1; i++)
+			printf("%c", buf[i]);
+		printf("\n\n");
 	}
 
 FAIL:

@@ -20,7 +20,7 @@ endif()
 
 # step back one level on includes and sources because we are hiding CMakeLists file
 
-set(target "rudp_rx_example")
+set(target "ll_rx_example")
 project(${target} C CXX ASM)
 
 set(RFM69_LIB_PATH "../../..")
@@ -31,7 +31,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(${target} src/rudp_rx_example.c)
+add_executable(${target} src/ll_rx_example.c)
 
 pico_enable_stdio_uart(${target} 0)
 pico_enable_stdio_usb(${target} 1)
