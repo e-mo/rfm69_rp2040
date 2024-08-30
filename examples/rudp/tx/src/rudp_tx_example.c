@@ -14,15 +14,15 @@
 #define PIN_RST  (20)
 
 int main() {
-	stdio_init_all(); // To be able to use printf
+    stdio_init_all(); // To be able to use printf
 
 	// INITIALIZATION
 
 	// SPI init
-	spi_init(SPI_INST, 1000*1000);
-	gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
-	gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
-	gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
+    spi_init(SPI_INST, 1000*1000);
+    gpio_set_function(PIN_MISO, GPIO_FUNC_SPI);
+    gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
+    gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
 
 	rfm69_context_t *rfm = (rfm69_context_t *){0};
 	struct rfm69_config_s config = {
@@ -45,19 +45,19 @@ int main() {
 		goto FAIL;
 	}
 
-	// RX CONFIG
+	// TX CONFIG
 	
 	// Set addresses
-	const uint8_t rx_address = 0x01; // Our address
-	rfm69_rudp_address_set(rudp, rx_address);
+	const uint8_t tx_address = 0x00; // Our address
+	rfm69_rudp_address_set(rudp, tx_address);
 
-	const uint8_t tx_address = 0x00; // Destination radio address
+	const uint8_t rx_address = 0x01; // Destination radio address
 	
-	// Set buffer to receive payload
-	uint8_t buffer[100] = {0};
-	const uint size = sizeof buffer;
+	// Set payload
+	char payload[] = "Hello, World!\n";
+	const uint size = strlen(payload);
 
-	rfm69_rudp_rx_buffer_set(rudp, buffer, size);
+	rfm69_rudp_payload_set(rudp, payload, size);
 	
 	// Grab a pointer to the rudp context object's trx report.
 	// This report is overwritten during any tx or rx.
@@ -78,20 +78,7 @@ int main() {
 			}
 		} 
 
-		// If receive returns false, check return_status
-		// in report.
-		if (!rfm69_rudp_receive(_rudp)) {
-			switch (report->return_status) {
-			case RUDP_TIMEOUT:
-				printf("Rx timed out!\n");
-				break;
-			default:
-				printf("Rx failed due to an error!\n");
-			}
-		}
-
-		printf("Rx success!\n");
-		printf("Payload: %.*s\n", report->bytes_received, buffer);
+		printf("Tx success!\n");
 
 		sleep_ms(1000);
 	}

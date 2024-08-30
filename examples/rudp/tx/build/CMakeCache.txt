@@ -337,6 +337,15 @@ picotool_DIR:PATH=/usr/local/lib/cmake/picotool
 pioasm_DIR:PATH=pioasm_DIR-NOTFOUND
 
 //Value Computed by CMake
+rfm69_rp2040_BINARY_DIR:STATIC=/home/emo/pico/wisdom_sensor_net/drivers/rfm69_rp2040/examples/rudp/tx/build/libs/rfm69_rp2040
+
+//Value Computed by CMake
+rfm69_rp2040_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+rfm69_rp2040_SOURCE_DIR:STATIC=/home/emo/pico/wisdom_sensor_net/drivers/rfm69_rp2040
+
+//Value Computed by CMake
 rudp_tx_example_BINARY_DIR:STATIC=/home/emo/pico/wisdom_sensor_net/drivers/rfm69_rp2040/examples/rudp/tx/build
 
 //Value Computed by CMake
