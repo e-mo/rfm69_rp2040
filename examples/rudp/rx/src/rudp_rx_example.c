@@ -27,6 +27,11 @@ int main() {
 	gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
 	gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
 
+	// Drive CS pin high
+    gpio_init(PIN_CS);
+    gpio_set_dir(PIN_CS, GPIO_OUT);
+    gpio_put(PIN_CS, 1);
+
 	rfm69_context_t rfm;
 	struct rfm69_config_s config = {
 		.spi = SPI_INST,
