@@ -48,12 +48,6 @@ bool rfm69_init(
 		.address = 0
 	};
 
-
-    // Chip select is active-low, so we'll initialise it to a driven-high state
-    gpio_init(config->pin_cs);
-    gpio_set_dir(config->pin_cs, GPIO_OUT);
-    gpio_put(config->pin_cs, 1);
-
     // Per documentation we leave RST pin floating for at least
     // 10 ms on startup. No harm in waiting 10ms here to
     // guarantee.
