@@ -42,10 +42,7 @@ typedef struct _rfm69_context {
 
 struct rfm69_config_s {
 	spi_inst_t *spi;
-	uint pin_miso;
-	uint pin_mosi;
 	uint pin_cs;
-	uint pin_sck;
 	uint pin_rst;
 };
 

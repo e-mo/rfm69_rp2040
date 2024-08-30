@@ -20,7 +20,7 @@ endif()
 
 # step back one level on includes and sources because we are hiding CMakeLists file
 
-set(target "ll_tx_example")
+set(target "rudp_tx_example")
 project(${target} C CXX ASM)
 
 set(RFM69_LIB_PATH "../../..")
