@@ -2,6 +2,7 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "rfm69_rp2040.h"
+#include "tusb.h"
 
 #define ever ;;
 
@@ -16,6 +17,9 @@
 int main() {
     stdio_init_all(); // To be able to use printf
 
+	// To make execution wait for usb serial connection
+	//while (!tud_cdc_connected()) { sleep_ms(100); };
+
 	// INITIALIZATION
 
 	// SPI init
@@ -24,7 +28,7 @@ int main() {
     gpio_set_function(PIN_SCK,  GPIO_FUNC_SPI);
     gpio_set_function(PIN_MOSI, GPIO_FUNC_SPI);
 
-	rfm69_context_t *rfm = (rfm69_context_t *){0};
+	rfm69_context_t rfm;
 	struct rfm69_config_s config = {
 		.spi = SPI_INST,
 		.pin_miso = PIN_MISO,
@@ -34,13 +38,13 @@ int main() {
 		.pin_rst = PIN_RST
 	};
 
-	if (!rfm69_init(rfm, &config)) {
+	if (!rfm69_init(&rfm, &config)) {
 		// radio init fail (SPI communication failure)
 		goto FAIL;
 	}
 
-	rudp_context_t *rudp = (rudp_context_t *){0};
-	if (!rfm69_rudp_init(rudp, rfm)) {
+	rudp_context_t rudp;
+	if (!rfm69_rudp_init(&rudp, &rfm)) {
 		// rudp init fail (SPI communication failure)
 		goto FAIL;
 	}
@@ -49,7 +53,7 @@ int main() {
 	
 	// Set addresses
 	const uint8_t tx_address = 0x00; // Our address
-	rfm69_rudp_address_set(rudp, tx_address);
+	rfm69_rudp_address_set(&rudp, tx_address);
 
 	const uint8_t rx_address = 0x01; // Destination radio address
 	
@@ -57,18 +61,18 @@ int main() {
 	char payload[] = "Hello, World!\n";
 	const uint size = strlen(payload);
 
-	rfm69_rudp_payload_set(rudp, payload, size);
+	rfm69_rudp_payload_set(&rudp, payload, size);
 	
 	// Grab a pointer to the rudp context object's trx report.
 	// This report is overwritten during any tx or rx.
 	// See rfm69_rp2040_rudp.h for struct definition.
-	const struct trx_report_s *report = rfm69_rudp_report_get(rudp);
+	const struct trx_report_s *report = rfm69_rudp_report_get(&rudp);
 
 	// Send payload every 1 sec
 	for(ever) {
 
 		// If transmit returns false, check trx report for return status
-		if(!rfm69_rudp_transmit(rudp, rx_address)) {
+		if(!rfm69_rudp_transmit(&rudp, rx_address)) {
 			switch (report->return_status) {
 			case RUDP_TIMEOUT:
 				printf("TX timed out!\n");
@@ -76,9 +80,9 @@ int main() {
 			default:
 				printf("Tx failed due to an error!\n");
 			}
-		} 
-
-		printf("Tx success!\n");
+		} else {
+			printf("Tx success!\n");
+		}
 
 		sleep_ms(1000);
 	}
