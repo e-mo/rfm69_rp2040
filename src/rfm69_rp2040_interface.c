@@ -69,15 +69,15 @@ bool rfm69_init(
 
 	rfm69_data_mode_set(rfm, RFM69_DATA_MODE_PACKET);
 
-	// You have no idea how important this is and how odd
-	// the radio can behave with it off
-	rfm69_dagc_set(rfm, RFM69_DAGC_IMPROVED_0);
-
 	rfm69_power_level_set(rfm, 13);
 	rfm69_rssi_threshold_set(rfm, 0xE4);
 	rfm69_tx_start_condition_set(rfm, RFM69_TX_FIFO_NOT_EMPTY);
 	rfm69_broadcast_address_set(rfm, 0xFF); 
 	rfm69_address_filter_set(rfm, RFM69_FILTER_NODE_BROADCAST);
+
+	// You have no idea how important this is and how odd
+	// the radio can behave with it off
+	rfm69_dagc_set(rfm, RFM69_DAGC_IMPROVED_0);
 
 	//Set sync value (essentially functions as subnet)
 	uint8_t sync[3] = {0x01, 0x01, 0x01};

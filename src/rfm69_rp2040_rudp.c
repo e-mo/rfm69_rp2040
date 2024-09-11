@@ -66,8 +66,8 @@ bool rfm69_rudp_init(rudp_context_t *context, rfm69_context_t *rfm) {
 	context->payload = NULL;
 	context->payload_size = 0;
 
-	context->tx_timeout = 100; // 100ms tx retry timeout default
-	context->rx_timeout = 3000; // 3s rx timeout
+	context->tx_timeout = 1000; // 1s tx retry timeout default
+	context->rx_timeout = 10000; // 10s rx timeout
 
 	context->tx_retries = 5;
 	
@@ -80,8 +80,6 @@ bool rfm69_rudp_init(rudp_context_t *context, rfm69_context_t *rfm) {
     rfm69_dcfree_set(rfm, RFM69_DCFREE_WHITENING);
 	rfm69_packet_format_set(rfm, RFM69_PACKET_VARIABLE);
 	rfm69_payload_length_set(rfm, PAYLOAD_MAX);
-	rfm69_frequency_set(rfm, 915);
-	rfm69_power_level_set(rfm, 20);
 
 	rfm69_mode_set(rfm, RFM69_OP_MODE_SLEEP);
 	return true;
