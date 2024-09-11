@@ -66,7 +66,7 @@ bool rfm69_rudp_init(rudp_context_t *context, rfm69_context_t *rfm) {
 	context->payload = NULL;
 	context->payload_size = 0;
 
-	context->tx_timeout = 1000; // 1s tx retry timeout default
+	context->tx_timeout = 100; // 1s tx retry timeout default
 	context->rx_timeout = 10000; // 10s rx timeout
 
 	context->tx_retries = 5;

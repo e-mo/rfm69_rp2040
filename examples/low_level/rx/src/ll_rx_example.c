@@ -70,6 +70,7 @@ int main() {
 	uint8_t buf[100] = {0};
 	rfm69_mode_set(&rfm, RFM69_OP_MODE_RX);
 	
+	int i = 0;
 	// Wait for packets
 	for(ever) {
 
@@ -79,7 +80,7 @@ int main() {
             rfm69_irq2_flag_state(&rfm, RFM69_IRQ2_FLAG_PAYLOAD_READY, &state);
 			sleep_ms(10);
         }
-        printf("Packet received!\n");
+        printf("%i: Packet received!\n", i);
 
 		// Read payload size byte from FIFO
 		rfm69_read(&rfm, RFM69_REG_FIFO, buf, 1);
@@ -95,6 +96,8 @@ int main() {
 		for (int i = 2; i <= buf[0]-1; i++)
 			printf("%c", buf[i]);
 		printf("\n\n");
+
+		i++;
 	}
 
 FAIL:

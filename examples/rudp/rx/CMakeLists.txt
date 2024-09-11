@@ -44,4 +44,6 @@ target_link_libraries(${target} rfm69_rp2040)
 # Add the standard include files to the build
 target_include_directories(${target} PRIVATE src)
 
+target_compile_definitions(${target} PRIVATE RFM69_HIGH_POWER)
+
 pico_add_extra_outputs(${target})

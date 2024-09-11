@@ -56,6 +56,7 @@ int main() {
     // RXBW >= fdev + br/2
     rfm69_rxbw_set(&rfm, RFM69_RXBW_MANTISSA_20, 2);
     rfm69_dcfree_set(&rfm, RFM69_DCFREE_WHITENING);
+	rfm69_power_level_set(&rfm, 20);
 	
 	// Set addresses
 
@@ -75,6 +76,24 @@ int main() {
 	// Send payload every 1 sec
 	uint sent = 0;
 	for(ever) {
+
+		uint8_t buf;
+        // Print registers 0x01 -> 0x4F
+        for (int i = 1; i < 0x50; i++) {
+            rfm69_read(
+                    &rfm,
+                    i,
+                    &buf,
+                    1
+            );
+            printf("0x%02X: %02X\n", i, buf);
+        }
+		rfm69_read(&rfm, 0x5A, &buf, 1);
+		printf("0x5A: %02X\n", buf);
+		rfm69_read(&rfm, 0x5C, &buf, 1);
+		printf("0x5C: %02X\n", buf);
+        printf("\n");
+		rfm69_power_level_set(&rfm, 20);
 
 		// Fill FIFO while in sleep
 		rfm69_write(&rfm, RFM69_REG_FIFO, buffer, (sizeof buffer));
