@@ -37,16 +37,14 @@ bool rfm69_init(
 {
 	bool success = false;
 
-	*rfm = (rfm69_context_t) {
-		.spi = config->spi,
-		.pin_cs = config->pin_cs,
-		.pin_rst = config->pin_rst,
-		.op_mode = RFM69_OP_MODE_STDBY,
-		.pa_level = 0xFF,
-		.pa_mode = RFM69_PA_MODE_PA0,
-		.ocp_trim = RFM69_OCP_TRIM_DEFAULT,
-		.address = 0
-	};
+	rfm->spi = config->spi;
+	rfm->pin_cs = config->pin_cs;
+	rfm->pin_rst = config->pin_rst;
+	rfm->op_mode = RFM69_OP_MODE_STDBY;
+	rfm->pa_level = 0xFF;
+	rfm->pa_mode = RFM69_PA_MODE_PA0;
+	rfm->ocp_trim = RFM69_OCP_TRIM_DEFAULT;
+	rfm->address = 0;
 
     // Per documentation we leave RST pin floating for at least
     // 10 ms on startup. No harm in waiting 10ms here to

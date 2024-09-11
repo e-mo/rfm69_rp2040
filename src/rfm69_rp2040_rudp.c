@@ -42,7 +42,7 @@ typedef struct baud_settings {
 
 const baud_settings_t BAUD_SETTINGS_LOOKUP[RUDP_BAUD_NUM] = {
 	// RUDP_BAUD_57_6, ~2 beta, 12000 us PPD
-	{70000, RFM69_MODEM_BITRATE_57_6, 12000, RFM69_RXBW_MANTISSA_20, 2} 
+	{60000, RFM69_MODEM_BITRATE_57_6, 12000, RFM69_RXBW_MANTISSA_20, 2} 
 };
 
 
@@ -80,6 +80,8 @@ bool rfm69_rudp_init(rudp_context_t *context, rfm69_context_t *rfm) {
     rfm69_dcfree_set(rfm, RFM69_DCFREE_WHITENING);
 	rfm69_packet_format_set(rfm, RFM69_PACKET_VARIABLE);
 	rfm69_payload_length_set(rfm, PAYLOAD_MAX);
+	rfm69_frequency_set(rfm, 915);
+	rfm69_power_level_set(rfm, 20);
 
 	rfm69_mode_set(rfm, RFM69_OP_MODE_SLEEP);
 	return true;
