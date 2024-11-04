@@ -487,7 +487,7 @@ bool rfm69_power_level_set(rfm69_context_t *rfm, int8_t pa_level) {
 	rfm->pa_level = pa_level; 
 	success = true;
 RETURN:
-    return false;
+    return success;
 }
 
 void rfm69_power_level_get(rfm69_context_t *rfm, uint8_t *pa_level) {
@@ -521,8 +521,11 @@ bool _power_mode_set(rfm69_context_t *rfm, RFM69_PA_MODE pa_mode) {
 	if (!rfm69_write_masked(rfm, RFM69_REG_PA_LEVEL, buf, RFM69_PA_PINS_MASK))
 		return false;
 
+	// We have to be careful here that we do not actually enable HP if we
+	// are in RX mode. HP will be properly enabled if the pl is > 17 and the
+	// mode is changed to TX, so it is not important it is set here.
 	bool success;
-	if (pa_mode == RFM69_PA_MODE_HIGH)
+	if (pa_mode == RFM69_PA_MODE_HIGH && rfm->op_mode != RFM69_OP_MODE_RX)
 		success = _hp_set(rfm, RFM69_HP_ENABLE);
 	else 
 		success = _hp_set(rfm, RFM69_HP_DISABLE);
@@ -562,11 +565,7 @@ bool _hp_set(rfm69_context_t *rfm, RFM69_HP_CONFIG config) {
     if (!rfm69_write(rfm, RFM69_REG_TEST_PA2, &buf[1], 1))
 		return false;
 
-
 	if (!_ocp_set(rfm, ocp)) return false;
-
-	if (!rfm69_write_masked(rfm, RFM69_REG_OCP, ocp_trim, _OCP_TRIM_MASK))
-		return false;
 
     return true;
 }
