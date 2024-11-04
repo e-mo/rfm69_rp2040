@@ -549,14 +549,11 @@ bool _hp_set(rfm69_context_t *rfm, RFM69_HP_CONFIG config) {
         buf[0] = RFM69_HP_PA1_HIGH;
         buf[1] = RFM69_HP_PA2_HIGH;
         ocp = RFM69_OCP_DISABLED;
-        ocp_trim = RFM69_OCP_TRIM_HIGH;
-
     }
     else {
         buf[0] = RFM69_HP_PA1_LOW;
         buf[1] = RFM69_HP_PA2_LOW;
         ocp = RFM69_OCP_ENABLED;
-        ocp_trim = rfm->ocp_trim;
     }
 
     if (!rfm69_write(rfm, RFM69_REG_TEST_PA1, &buf[0], 1))
