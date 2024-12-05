@@ -423,6 +423,7 @@ bool rfm69_power_level_set(rfm69_context_t *rfm, int8_t pa_level) {
 	bool success = false;
 
     if (rfm->pa_level == pa_level) {
+        success = true;
         rfm->return_status = RFM69_OK;
 		goto RETURN;
 	}
