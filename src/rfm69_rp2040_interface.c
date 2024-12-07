@@ -662,3 +662,111 @@ bool rfm69_dagc_set(rfm69_context_t *rfm, RFM69_DAGC_SETTING setting) {
             1
     );
 }
+
+bool rfm69_dio0_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO0_PKT_RX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_1,
+            dio_config,
+            RFM69_DIO_0_MASK
+    );
+}
+
+bool rfm69_dio0_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO0_PKT_TX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_1,
+            dio_config,
+            RFM69_DIO_0_MASK
+    );
+}
+
+bool rfm69_dio1_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO1_PKT_RX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_1,
+            dio_config,
+            RFM69_DIO_1_MASK
+    );
+}
+
+bool rfm69_dio1_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO1_PKT_TX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_1,
+            dio_config,
+            RFM69_DIO_1_MASK
+    );
+}
+
+bool rfm69_dio2_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO2_PKT_RX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_2,
+            dio_config,
+            RFM69_DIO_2_MASK
+    );
+}
+
+bool rfm69_dio2_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO2_PKT_TX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_2,
+            dio_config,
+            RFM69_DIO_2_MASK
+    );
+}
+
+bool rfm69_dio3_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO3_PKT_RX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_2,
+            dio_config,
+            RFM69_DIO_3_MASK
+    );
+}
+
+bool rfm69_dio3_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO3_PKT_TX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_2,
+            dio_config,
+            RFM69_DIO_3_MASK
+    );
+}
+
+bool rfm69_dio4_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO4_PKT_RX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_2,
+            dio_config,
+            RFM69_DIO_4_MASK
+    );
+}
+
+bool rfm69_dio4_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO4_PKT_TX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_2,
+            dio_config,
+            RFM69_DIO_4_MASK
+    );
+}
+
+bool rfm69_dio5_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO5_PKT_RX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_2,
+            dio_config,
+            RFM69_DIO_5_MASK
+    );
+}
+
+bool rfm69_dio5_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO5_PKT_TX dio_config) {
+    return rfm69_write_masked(
+            rfm,
+            RFM69_REG_DIO_MAPPING_2,
+            dio_config,
+            RFM69_DIO_5_MASK
+    );
+}
