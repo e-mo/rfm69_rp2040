@@ -224,17 +224,12 @@ bool rfm69_dcfree_set(rfm69_context_t *rfm, RFM69_DCFREE_SETTING setting);
 bool rfm69_dagc_set(rfm69_context_t *rfm, RFM69_DAGC_SETTING setting);
 
 // Helper functions to configure dio settings in packet mode
-bool rfm69_dio0_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO0_PKT_RX dio_config);
-bool rfm69_dio0_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO0_PKT_TX dio_config);
-bool rfm69_dio1_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO1_PKT_RX dio_config);
-bool rfm69_dio1_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO1_PKT_TX dio_config);
-bool rfm69_dio2_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO2_PKT_RX dio_config);
-bool rfm69_dio2_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO2_PKT_TX dio_config);
-bool rfm69_dio3_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO3_PKT_RX dio_config);
-bool rfm69_dio3_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO3_PKT_TX dio_config);
-bool rfm69_dio4_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO4_PKT_RX dio_config);
-bool rfm69_dio4_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO4_PKT_TX dio_config);
-bool rfm69_dio5_rx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO5_PKT_RX dio_config);
-bool rfm69_dio5_tx_mode_config_set(rfm69_context_t *rfm, RFM69_DIO5_PKT_TX dio_config);
+// TODO: Document these functions and add missing mode configurations
+bool rfm69_dio0_config_set(rfm69_context_t *rfm, RFM69_DIO0_CFG dio_config);
+bool rfm69_dio1_config_set(rfm69_context_t *rfm, RFM69_DIO1_CFG dio_config);
+bool rfm69_dio2_config_set(rfm69_context_t *rfm, RFM69_DIO2_CFG dio_config);
+bool rfm69_dio3_config_set(rfm69_context_t *rfm, RFM69_DIO3_CFG dio_config);
+bool rfm69_dio4_config_set(rfm69_context_t *rfm, RFM69_DIO4_CFG dio_config);
+bool rfm69_dio5_config_set(rfm69_context_t *rfm, RFM69_DIO5_CFG dio_config);
 
 #endif // RFM69_RP2040_INTERFACE_H
