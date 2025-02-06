@@ -1,5 +1,8 @@
 WISDOM Transmission Protocol Specification
 Version: 1.0
+Created: 2025.02.06
+ Author: Evan Morse
+Contact: emorse8686@gmail.com
 
 The WISDOM Transmission Protocol (WTP) is a reliable transmission protocol compatible with the
 RFM69 series of transponders. It is an adaptation of the TCP (Transport Control Protocol) with
