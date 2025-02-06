@@ -1,0 +1,186 @@
+WISDOM Transmission Protocol Specification
+Version: 1.0
+
+The WISDOM Transmission Protocol (WTP) is a reliable transmission protocol compatible with the
+RFM69 series of transponders. It is an adaptation of the TCP (Transport Control Protocol) with
+the primary difference being that WTP is only half-duplex and is not persistent. The connection
+is established, the payload is sent, and the connection is dropped.
+See 'Protocol Details' below for more information.
+
+Packet Header:
+ 
+     0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+  0  [    packet size     ]  [     rx address     ]  [     tx address     ]  [        flags       ]
+  4  [                                      sequence number                                       ]
+  8  [                                  acknowledgement number                                    ]
+  12 [--------------------------------------------------------------------------------------------]
+  16 [                                       data segment                                         ]
+
+  packet size: 8 bits
+    Entire size of packet (data + header) minus the packet size byte.
+    max: 0xFF (255 bytes)
+  
+  rx address: 8 bits
+    Receiving node address.
+  
+    address range: 0x00-0xFE 
+    broadcast address: 0xFF
+  
+  tx address: 8 bits
+    Transmitting node address.
+  
+    address range: 0x00-0xFE 
+  
+  flags: 8 bits
+    Transmission control flags.
+  
+    0x01: SYN - Synchronize sequence numbers. Only first packet from each end should have this
+                flag set. 
+    0x02: ACK - Indicates that the acknowledgment number field is significant. All packets past
+                first SYN packet should have this flag set. 
+    0x04: FIN - Signals an end of transmission. Should be responded to with one final FIN ACK
+                packet.
+                
+  sequence number: 32 bits
+    Randomly generated at beginning of transmission and incremented with each transmitted packet.
+    Used to identify sequence ordering and ensure synchronized communication.
+
+  acknowledgement number: 32 bits
+    Last received sequence number + 1 to ensure communication stays synchronized.
+    Only significant if ACK flag is set. 
+  
+  data segment: 54 bytes (AES) or 244 bytes (No AES)
+    If harware AES is enabled, the data segment of a packet is limited by the size of the RFM69
+    hardware buffer.
+    [66 bytes (buffer size) - 12 bytes (header) = 54 bytes]
+
+    Without AES enabled, the data segment size is limited by the 8 bit packet size.
+    [255 bytes (8 bit max) + 1 byte (size byte) - 12 bytes (header) = 244 bytes]
+ 
+Protocol Details:
+
+  The WTP protocol is designed to be compatible with underlying hardware (RFM69) as well as the 
+  intended use of the Wisdom equipment (remote location sensor data collection). For this reason
+  the protocol is designed to afford as much reliability as possible while trying to minimize
+  the number of packets required to achieve that reliability.
+
+  WTP protocol is similar to TCP in that a three-way handshake is perfomed to synchronize
+  communication for the transfer of segmented packets. However, since it is common for sensor
+  data to fit easily into a single segment, the connection handshake and teardown can happen
+  simultaneously. Data transmission begins with the very first packet. This means that the
+  minimum number of packets sent during communication is three instead of requiring three
+  packets to establish handshake, one to send data, and two more to finish teardown. This
+  optimization intends to significantly reduce the inefficiency of sending many small bursts
+  of data as is common in IoT applications.
+
+  handshake:
+    Similar to TCP, the handshake is used to synchronize sequence and acknowledgement numbers
+    to ensure correct ordering when constructing segmented data and to ensure retransmission
+    of the correct packet in the even of packet loss.
+
+    step 1: TX: (tx sequence number) = random 16 bit unsigned integer.
+
+            TX => SYN => RX
+
+            Note: contains first data segment.
+
+    step 2: RX: (rx sequence number) = random 16 bit unsigned integer.
+                (rx acknowledgement number) = (tx sequence number) + 1.                 
+
+            RX => SYN ACK => TX
+
+    step 3: TX: (tx sequence number) = (rx acknowledgement number).
+                (tx acknowledgement number) = (rx sequence number) + 1.
+
+            TX => ACK => RX
+
+            Note: contains potential second data segment.
+
+  transmission:
+    One the handshake has been performed, data transmission continues if more data segments
+    remain to be sent.
+
+    send segment: TX: (tx sequence number) = (rx acknowledgement number).
+                      (tx acknowledgement number) = (rx sequence number) + 1.
+
+                  TX => ACK => RX
+
+    acknowledge:  RX: (rx sequence number) = (tx acknowledgement number).
+                      (rx acknowledgement number) = (tx sequence number) + 1.
+
+                  RX => ACK => TX
+
+  teardown:
+    The TX side sets the FIN flag with the packet containing the final data segment. This may
+    be the very first packet sent, meaning the handshake and teardown may happen simultaneously.
+
+    step 1: TX: (tx sequence number) = (rx acknowledgement number).
+                (tx acknowledgement number) = (rx sequence number) + 1.
+
+                TX => ACK FIN => RX
+
+                Note: contains final data segment.
+
+    step 2: RX: (rx sequence number) = (tx acknowledgement number).
+                (rx acknowledgement number) = (tx sequence number) + 1.
+
+                RX => ACK FIN => TX
+
+    step 3: TX: (tx sequence number) = (rx acknowledgement number).
+                (tx acknowledgement number) = (rx sequence number) + 1.
+
+                TX => ACK FIN => RX
+
+                Note: TX side ends transmission after sending.
+
+  handshake + teardown:
+    When there is only one segment of data, the handshake and teardown happen simultaneously.
+    This simply requires that the TX side begins communication with the FIN flag set.
+
+    step 1: TX: (tx sequence number) = random 16 bit unsigned integer.
+
+            TX => SYN FIN => RX
+
+            Note: contains only data segment.
+
+    step 2: RX: (rx sequence number) = random 16 bit unsigned integer.
+                (rx acknowledgement number) = (tx sequence number) + 1.                 
+
+            RX => SYN ACK FIN => TX
+
+    step 3: TX: (tx sequence number) = (rx acknowledgement number).
+                (tx acknowledgement number) = (rx sequence number) + 1.
+
+            TX => ACK FIN => RX
+
+            Note: TX side ends transmission after sending.
+
+  broadcast:
+    Broadcast transmissions (rx address = 0xFF) are not guaranteed, do not begin a handshake,
+    and thus require no response from RX. 
+
+    step 1: TX: (tx sequence number) = random 16 bit unsigned integer.
+
+            TX => SYN => RX
+    ...
+
+    step n: TX: (tx sequence number) = (tx sequence number) + 1.
+
+            TX => (no flags) => RX
+    ...
+
+    end:    TX: (tx sequence number) = (tx sequence number) + 1.
+
+            TX => FIN => RX
+
+Notes for Future Development:
+
+I kept this protocol simple because my initial use case is simple. There are, however, 5 unused
+bits in the flags field, so there is potential room for the protocol to expand in functionality
+without any changes made to the packet structure.
+
+I do have some feelings about a potential 2.0 version of the protocol that is compatible with
+both the RFM69 and RFM95 (LoRa) transceiver, but that would require abandoning several of the
+hardware specific features of the RFM69 chipset, so it isn't a decision I can make lightly. Also,
+I think that Semtech are a pile of capitalistic stinkers hiding their protocol behind proprietary
+licenses so I don't really want to use their tech if I can help it.
