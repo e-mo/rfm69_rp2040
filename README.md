@@ -30,5 +30,10 @@ note: While the current state of this interface is a bit in flux, it currently w
 [RFM69HCW Datasheet](https://cdn.sparkfun.com/datasheets/Wireless/General/RFM69HCW-V1.1.pdf)
 
 ---
+## .plan
+I am still very much actively working on some of the higher features of this library. I decided to establish a proper specification of my RUDP prodocol, which I have renamed WTP (the Wisdom Transfer Protocol), though it will still just be called RUDP in the library for simplicity. I recently added this specification to the repo. I am also rebuilding the RUDP part of the library entirely to a more sane and maintainable design. The original was built quickly to meet a specific testing goal, and if you have looked at the RUDP TX/RX functions, they are a nightmare and even I struggle to read them and make changes. I am finally utilizing the DIO ports and a creating an interrupt driven design.  
+
+I think these changes are the correct direction and I look foward to being happier with the state of the RUDP code, as well as iproving higher level support for some of the RFM69s more advanced features.
+---  
 If you need help or have a suggestion/question of any kind, contact me:  
 <emorse@tech.dev>
