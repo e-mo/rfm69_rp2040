@@ -5,20 +5,20 @@ Created: 2025.02.06
 Contact: emorse8686@gmail.com
 
 The WISDOM Transmission Protocol (WTP) is a reliable transmission protocol compatible with the
-RFM69 series of transponders. It is an adaptation of the TCP (Transport Control Protocol) with
+RFM69 series of transponders. It is loosely based on the TCP (Transport Control Protocol) with
 the primary differences being that WTP is only half-duplex and is not persistent. The connection
-is established, the payload is sent, and the connection is dropped.
-See 'Protocol Details' below for more information.
+is established, the payload is sent, and the connection is dropped. The protocol also supports
+a simplex broadcast. 
 
+See 'Protocol Details' below for more information.
 
 Packet Header:
  
      0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
   0  [    packet size     ]  [     rx address     ]  [     tx address     ]  [        flags       ]
-  4  [                                      sequence number                                       ]
-  8  [                                  acknowledgement number                                    ]
-  12 [--------------------------------------------------------------------------------------------]
-  16 [                                       data segment                                         ]
+  4  [             sequence number                ]  [            acknowledgement number          ]
+  8  [--------------------------------------------------------------------------------------------]
+  12 [                                        data segment                                        ]
 
   packet size: 8 bits
     Entire size of packet (data + header) minus the packet size byte.
@@ -44,27 +44,24 @@ Packet Header:
                 first SYN packet should have this flag set. 
     0x04: FIN - Signals an end of transmission. Should be responded to with one final FIN ACK
                 packet.
-	0x08: RTR - Retry flag signals that this is a retransmission of a packet, meaning that either
-			    the original transmission failed, or the ACK was not received. 
-	0x10: SEG - Signals that the payload has been segmented and more data segments remain to be
-				sent. The packet containing the final data segment will not contain this flag,
-				nor will packets that contain a single segment payload.
+    0x08: RTR - Retry flag signals that this is a retransmission of a packet, meaning that either
+                the original transmission failed, or the ACK was not received. 
                 
-  sequence number: 32 bits
+  sequence number: 16 bits
     Randomly generated at beginning of transmission and incremented with each transmitted packet.
     Used to identify sequence ordering and ensure synchronized communication.
 
-  acknowledgement number: 32 bits
+  acknowledgement number: 16 bits
     Last received sequence number + 1 to ensure communication stays synchronized.
     Only significant if ACK flag is set. 
   
-  data segment: 54 bytes (AES) or 244 bytes (No AES)
+  data segment: 58 bytes (AES) or 248 bytes (No AES)
     If harware AES is enabled, the data segment of a packet is limited by the size of the RFM69
     hardware buffer.
-    [66 bytes (buffer size) - 12 bytes (header) = 54 bytes]
+    [66 bytes (buffer size) - 8 bytes (header) = 58 bytes]
 
     Without AES enabled, the data segment size is limited by the 8 bit packet size.
-    [255 bytes (8 bit max) + 1 byte (size byte) - 12 bytes (header) = 244 bytes]
+    [255 bytes (8 bit max) + 1 byte (size byte) - 8 bytes (header) = 248 bytes]
 
 
 Protocol Details:
@@ -90,7 +87,7 @@ Protocol Details:
 
     step 1: TX: (tx sequence number) = random 16 bit unsigned integer.
 
-            TX => SYN [SEG*] => RX
+            TX => SYN => RX
 
             Note: data segment transfer begins with first packet.
 
@@ -102,9 +99,7 @@ Protocol Details:
     step 3: TX: (tx sequence number) = (rx acknowledgement number).
                 (tx acknowledgement number) = (rx sequence number) + 1.
 
-            TX => ACK [SEG*] => RX
-
-			*SEG flag only set if one or more data segments remain to be transmitted
+            TX => ACK => RX
 
   transmission:
     Once the handshake has been performed, data transmission continues if more data segments
@@ -113,31 +108,27 @@ Protocol Details:
     send segment: TX: (tx sequence number) = (rx acknowledgement number).
                       (tx acknowledgement number) = (rx sequence number) + 1.
 
-                  TX => ACK [SEG*] => RX
+                  TX => ACK => RX
 
     acknowledge:  RX: (rx sequence number) = (tx acknowledgement number).
                       (rx acknowledgement number) = (tx sequence number) + 1.
 
                   RX => ACK => TX
 
-				  *SEG flag only set if one or more data segments remain to be transmitted
-
   retransmission:
-	If a packet fails to send, or the corresponding ACK packet is never received, a packet will
-	be retransmitted. In this scenario, the retransmitted packet sets the RTR flag, and RX
-	responds with an ACK packet with the RTR flag also set. 
+    If a packet fails to send, or the corresponding ACK packet is never received, a packet will
+    be retransmitted. In this scenario, the retransmitted packet sets the RTR flag, and RX
+    responds with an ACK packet with the RTR flag also set. 
 
     send segment: TX: (tx sequence number) = (rx acknowledgement number).
                       (tx acknowledgement number) = (rx sequence number) + 1.
 
-                  TX => ACK RTR [SEG*] => RX
+                  TX => ACK RTR => RX
 
     acknowledge:  RX: (rx sequence number) = (tx acknowledgement number).
                       (rx acknowledgement number) = (tx sequence number) + 1.
 
                   RX => ACK RTR => TX
-
-				  *SEG flag only set if one or more data segments remain to be transmitted
 
   teardown:
     The TX side sets the FIN flag with the packet containing the final data segment. This may
